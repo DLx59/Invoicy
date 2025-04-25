@@ -1,0 +1,50 @@
+@use "primeicons/primeicons.css";
+@use "tailwindcss/tailwind.css";
+@plugin "tailwindcss-primeui";
+
+h1 {
+  font-size: 2.875rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.875rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+h6 {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+
+::view-transition-old(#router-view),
+::view-transition-new(#router-view) {
+  animation: smooth-slide-fade 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes smooth-slide-fade {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

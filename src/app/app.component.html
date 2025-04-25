@@ -1,0 +1,37 @@
+<div class="app-component flex flex-col min-h-screen">
+  <header class="bg-gray-900 p-5 border-b border-gray-700">
+    <div class="flex flex-row items-center justify-between">
+      <a [routerLink]="'/'">
+        <img alt="wtz-logo" src="assets/img/wtz_logo_v1.png" height="60" width="60"/>
+      </a>
+      <p-button (click)="createInvoice()" [label]="'Nouvelle facture'" severity="primary"></p-button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 flex-row">
+    <div class="left-menu flex flex-col w-64 bg-gray-900 border-e border-gray-700 p-5">
+      <ul class="space-y-4">
+        <li>
+          <p-button (click)="createInvoice()" severity="primary" [label]="'Créer une facture'"/>
+        </li>
+        <li>
+          <p-button severity="secondary" variant="text" [label]="'Mes brouillons'"/>
+        </li>
+        <li>
+          <p-button severity="secondary" variant="text" [label]="'Historique'"/>
+        </li>
+        <li>
+          <p-button severity="secondary" variant="text" [label]="'Paramètres'"/>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex flex-col flex-1 mt-2 p-5 bg-gray-950">
+      <router-outlet id="router-view"></router-outlet>
+    </div>
+  </div>
+
+  <footer class="bg-gray-900 text-center border-t border-gray-700 p-7">
+    <h6 class="text-gray-400 ">WTZ SRL - Générateur de facture</h6>
+  </footer>
+</div>
