@@ -69,7 +69,7 @@ export class PdfGeneratorService {
               ],
               [
                 {text: 'Délai de règlement :', fillColor: '#f5f5f5', bold: true},
-                invoice.deadline
+                `${invoice.deadline} jours fin de mois`
               ],
               [
                 {text: 'Échéance :', fillColor: '#f5f5f5', bold: true},
@@ -85,7 +85,7 @@ export class PdfGeneratorService {
               ],
               [
                 {text: 'N° Contrat :', fillColor: '#f5f5f5', bold: true},
-                `${invoice.contractNumber} jours fin de mois`
+                invoice.contractNumber
               ]
             ]
           },

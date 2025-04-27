@@ -254,6 +254,11 @@
             <span>Total TTC</span>
             <span>{{ totalGross() | currency:'EUR':'symbol':'1.2-2' }}</span>
           </div>
+
+          <div class="flex flex-row gap-5 mt-5 justify-between ">
+            <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Générer un PDF"
+                      severity="primary"/>
+          </div>
         </div>
       </div>
     </form>
