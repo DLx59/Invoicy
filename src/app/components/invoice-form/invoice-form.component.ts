@@ -1,15 +1,16 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
 import {Invoice} from '../../models/invoice.model';
 import {PdfGeneratorService} from '../../services/pdf-generator/pdf-generator.service';
-import {FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
-import {CurrencyPipe, DatePipe, NgIf, PercentPipe} from '@angular/common';
+import {CurrencyPipe, DatePipe} from '@angular/common';
 import {InvoiceFormGroupService} from '../../services/incoice-form-group/invoice-form-group.service';
 import {TableModule} from "primeng/table";
 import {FloatLabel} from "primeng/floatlabel";
 import {Button} from "primeng/button";
 import {Textarea} from "primeng/textarea";
 import {InputText} from "primeng/inputtext";
+import {ProductTableComponent} from "./product-table/product-table.component";
 
 @Component({
     selector: 'app-invoice-form',
@@ -23,25 +24,16 @@ import {InputText} from "primeng/inputtext";
         Textarea,
         InputText,
         CurrencyPipe,
-        PercentPipe,
-        NgIf
+        ProductTableComponent
     ],
     providers: [DatePipe],
 })
 export class InvoiceFormComponent {
-    private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
-    private readonly datePipe = inject(DatePipe);
-    private readonly pdfGeneratorService = inject(PdfGeneratorService);
-    private readonly invoiceNumberService = inject(InvoiceNumberService);
-
-    public formGroup = this.invoiceFormGroupService.getFormGroup();
     public invoice!: WritableSignal<Invoice>;
     public autoResizeEnabled = signal(false);
-
     public totalNet: Signal<number> = computed(() =>
         this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0)
     );
-
     public totalVat: Signal<number> = computed(() =>
         this.invoice().items.reduce((acc, item) => {
             const totalHt = item.totalPriceHt ?? 0;
@@ -49,10 +41,14 @@ export class InvoiceFormComponent {
             return acc + totalHt * taxRate;
         }, 0)
     );
-
     public totalGross: Signal<number> = computed(() =>
         this.totalNet() + this.totalVat()
     );
+    private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
+    public formGroup = this.invoiceFormGroupService.getFormGroup();
+    private readonly datePipe = inject(DatePipe);
+    private readonly pdfGeneratorService = inject(PdfGeneratorService);
+    private readonly invoiceNumberService = inject(InvoiceNumberService);
 
     constructor() {
         this.initDefaultInvoice();
@@ -98,18 +94,6 @@ export class InvoiceFormComponent {
                 this.formGroup.get('dueDate')?.setValue(dueDate, {emitEvent: false});
             });
         });
-    }
-
-    public get items(): FormArray<FormGroup> {
-        return this.invoiceFormGroupService.getItemsArray();
-    }
-
-    public addItem(): void {
-        this.invoiceFormGroupService.addItem();
-    }
-
-    public removeItem(index: number): void {
-        this.invoiceFormGroupService.removeItem(index);
     }
 
     public downloadPDF(): void {
@@ -163,11 +147,6 @@ export class InvoiceFormComponent {
         this.invoiceFormGroupService.initItems(this.invoice().items);
     }
 
-
-    public trackByItemId(index: number, item: FormGroup): string {
-        return item.get('id')?.value;
-    }
-
     private dueDate(): string {
         const invoice = this.invoice();
         const parts = invoice.issueDate.split('/');
@@ -184,44 +163,6 @@ export class InvoiceFormComponent {
         date.setUTCDate(date.getUTCDate() + Number(invoice.deadline));
 
         return this.datePipe.transform(date, 'dd/MM/yyyy') ?? '';
-    }
-
-    public onEditInit(row: FormGroup): void {
-        const index = this.items.controls.indexOf(row);
-        this.invoiceFormGroupService.storeOriginalItem(index, {...row.value});
-    }
-
-    public onEditSave(row: FormGroup): void {
-        const index = this.items.controls.indexOf(row);
-        this.invoiceFormGroupService.clearOriginalItem(index);
-    }
-
-
-    public onEditCancel(row: FormGroup, index: number): void {
-        const original = this.invoiceFormGroupService.getOriginalItem(index);
-
-        if (original) {
-            row.get('quantity')?.disable({emitEvent: false});
-            row.get('unitPrice')?.disable({emitEvent: false});
-
-            row.patchValue(original, {emitEvent: false});
-
-            row.get('quantity')?.enable({emitEvent: false});
-            row.get('unitPrice')?.enable({emitEvent: false});
-
-            this.invoice.update(prev => {
-                const updatedItems = [...prev.items];
-                updatedItems[index] = {
-                    ...updatedItems[index],
-                    quantity: original.quantity,
-                    unitPrice: original.unitPrice,
-                    totalPriceHt: original.quantity * original.unitPrice
-                };
-                return {...prev, items: updatedItems};
-            });
-
-            this.invoiceFormGroupService.clearOriginalItem(index);
-        }
     }
 
 
@@ -261,7 +202,7 @@ export class InvoiceFormComponent {
     }
 
     private updateInvoiceFromForm(form: any): void {
-        const updated = { ...this.invoice() };
+        const updated = {...this.invoice()};
         updated.invoiceNumber = form.invoiceNumber ?? '';
         updated.issueDate = form.issueDate ?? '';
         updated.deadline = form.deadline ?? '';

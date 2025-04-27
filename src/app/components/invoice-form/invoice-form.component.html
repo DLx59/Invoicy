@@ -1,266 +1,92 @@
 <div class="invoice-form-component m-5">
-  <div class="border rounded-xl border-gray-700">
-    <div class="flex flex-row justify-between items-center border-b border-gray-700 p-5">
-      <h2>Générateur de Factures</h2>
-      <p-button (click)="resetForm()" class="hover:bg-red-800" variant="outlined" severity="danger"
-                [label]="'Tout effacer'"/>
-    </div>
-    <form class="flex flex-col gap-2" [formGroup]="formGroup">
-      <div class="border-b border-gray-700 p-5">
-        <h5>Informations société</h5>
-        <div class="flex flex-col mt-4 gap-3">
-          <div class="flex flex-row gap-3">
-            <p-floatlabel class="w-full" variant="on">
-              <input class="w-full" [formControlName]="'issuerName'" pInputText id="issuerName"/>
-              <label for="issuerName">Société</label>
-            </p-floatlabel>
+    <div class="border rounded-xl border-gray-700">
+        <div class="flex flex-row justify-between items-center border-b border-gray-700 p-5">
+            <h2>Générateur de Factures</h2>
+            <p-button (click)="resetForm()" class="hover:bg-red-800" variant="outlined" severity="danger"
+                      [label]="'Tout effacer'"/>
+        </div>
+        <form class="flex flex-col gap-2" [formGroup]="formGroup">
+            <div class="border-b border-gray-700 p-5">
+                <h5>Informations société</h5>
+                <div class="flex flex-col mt-4 gap-3">
+                    <div class="flex flex-row gap-3">
+                        <p-floatlabel class="w-full" variant="on">
+                            <input class="w-full" [formControlName]="'issuerName'" pInputText id="issuerName"/>
+                            <label for="issuerName">Société</label>
+                        </p-floatlabel>
 
-            <p-floatlabel class="w-full" variant="on">
+                        <p-floatlabel class="w-full" variant="on">
               <textarea class="w-full" id="issuerAddress" [formControlName]="'issuerAddress'" rows="1" pTextarea
                         [autoResize]="autoResizeEnabled()"></textarea>
-              <label for="issuerAddress">Adresse</label>
-            </p-floatlabel>
-          </div>
-          <div class="flex flex-row gap-3">
-            <p-floatlabel class="w-full" variant="on">
-              <input class="w-full" [formControlName]="'issuerPhone'" pInputText id="issuerPhone"/>
-              <label for="issuerPhone">Téléphone</label>
-            </p-floatlabel>
+                            <label for="issuerAddress">Adresse</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-row gap-3">
+                        <p-floatlabel class="w-full" variant="on">
+                            <input class="w-full" [formControlName]="'issuerPhone'" pInputText id="issuerPhone"/>
+                            <label for="issuerPhone">Téléphone</label>
+                        </p-floatlabel>
 
-            <p-floatlabel class="w-full" variant="on">
-              <input class="w-full" [formControlName]="'issuerWebsite'" pInputText id="issuerWebsite"/>
-              <label for="issuerWebsite">Site web</label>
-            </p-floatlabel>
+                        <p-floatlabel class="w-full" variant="on">
+                            <input class="w-full" [formControlName]="'issuerWebsite'" pInputText id="issuerWebsite"/>
+                            <label for="issuerWebsite">Site web</label>
+                        </p-floatlabel>
 
-            <p-floatlabel class="w-full" variant="on">
-              <input class="w-full" [formControlName]="'issuerEmail'" pInputText id="issuerEmail"/>
-              <label for="issuerEmail">Email</label>
-            </p-floatlabel>
-          </div>
-        </div>
-      </div>
+                        <p-floatlabel class="w-full" variant="on">
+                            <input class="w-full" [formControlName]="'issuerEmail'" pInputText id="issuerEmail"/>
+                            <label for="issuerEmail">Email</label>
+                        </p-floatlabel>
+                    </div>
+                </div>
+            </div>
 
-      <div class="border-b border-gray-700 p-5">
-        <h5>Client</h5>
-        <div class="flex flex-col mt-4 gap-3">
-          <div class="flex flex-row gap-3">
-            <p-floatlabel class="w-full" variant="on">
-              <input class="w-full" [formControlName]="'clientName'" pInputText id="clientName"/>
-              <label for="clientName">Société</label>
-            </p-floatlabel>
+            <div class="border-b border-gray-700 p-5">
+                <h5>Client</h5>
+                <div class="flex flex-col mt-4 gap-3">
+                    <div class="flex flex-row gap-3">
+                        <p-floatlabel class="w-full" variant="on">
+                            <input class="w-full" [formControlName]="'clientName'" pInputText id="clientName"/>
+                            <label for="clientName">Société</label>
+                        </p-floatlabel>
 
-            <p-floatlabel class="w-full" variant="on">
+                        <p-floatlabel class="w-full" variant="on">
                           <textarea class="w-full" id="clientAddress" [formControlName]="'clientAddress'" pTextarea
                                     rows="1" [autoResize]="autoResizeEnabled()"></textarea>
-              <label for="clientAddress">Adresse</label>
-            </p-floatlabel>
-          </div>
-        </div>
-      </div>
-
-      <div class="border-b border-gray-700 p-5">
-        <h5>Produits / Services</h5>
-        <div class="flex flex-col mt-4 gap-3">
-          <div class="flex flex-row gap-3">
-            <p-table [value]="items.controls" dataKey="value.id" editMode="row" [rowTrackBy]="trackByItemId"
-                     class="w-full">
-              <ng-template #header>
-                <tr>
-                  <th>Type</th>
-                  <th>Descriptif</th>
-                  <th>Période</th>
-                  <th>Quantité</th>
-                  <th>Prix Unit. HT</th>
-                  <th>Montant HT</th>
-                  <th>TVA (%)</th>
-                  <th class="!text-center">Actions</th>
-                </tr>
-              </ng-template>
-
-              <ng-template #body let-row let-editing="editing" let-ri="rowIndex">
-                <tr [pEditableRow]="row">
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-36" variant="on">
-                          <input class="w-36" pInputText [formControl]="row.get('type')" id="type-{{ri}}"/>
-                          <label for="type-{{ri}}">Type</label>
+                            <label for="clientAddress">Adresse</label>
                         </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.value.type }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-36" variant="on">
-                          <input class="w-36" pInputText [formControl]="row.get('description')"
-                                 id="description-{{ri}}"/>
-                          <label for="description-{{ri}}">Descriptif</label>
-                        </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.value.description }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-36" variant="on">
-                          <input class="w-36" pInputText [formControl]="row.get('period')" id="period-{{ri}}"/>
-                          <label for="period-{{ri}}">Période</label>
-                        </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.value.period }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-24" variant="on">
-                          <input class="w-24" pInputText type="number" [formControl]="row.get('quantity')"
-                                 id="quantity-{{ri}}"/>
-                          <label for="quantity-{{ri}}">Quantité</label>
-                        </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.value.quantity }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-32" variant="on">
-                          <input class="w-32" pInputText type="number" [formControl]="row.get('unitPrice')"
-                                 id="unitPrice-{{ri}}"/>
-                          <label for="unitPrice-{{ri}}">Prix Unit. HT</label>
-                        </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.value.unitPrice | currency:'EUR':'symbol':'1.2-2' }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-32" variant="on">
-                          <input class="w-32" pInputText type="number" [formControl]="row.get('totalPriceHt')"
-                                 id="totalPriceHt-{{ri}}"/>
-                          <label for="totalPriceHt-{{ri}}">Montant HT</label>
-                        </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.get('totalPriceHt').value | currency:'EUR':'symbol':'1.2-2' }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <p-cellEditor>
-                      <ng-template #input>
-                        <p-floatlabel class="w-24" variant="on">
-                          <input class="w-24" pInputText type="number" [formControl]="row.get('taxRate')"
-                                 id="taxRate-{{ri}}"/>
-                          <label for="taxRate-{{ri}}">TVA (%)</label>
-                        </p-floatlabel>
-                      </ng-template>
-                      <ng-template #output>
-                        {{ row.get('taxRate').value | percent : '1.0-2' }}
-                      </ng-template>
-                    </p-cellEditor>
-                  </td>
-
-                  <td>
-                    <div class="flex items-center justify-center gap-2">
-                      <td>
-                        <div class="flex items-center justify-center gap-2">
-                          <p-button *ngIf="!editing"
-                                    pRipple
-                                    type="button"
-                                    pInitEditableRow
-                                    (click)="onEditInit(row)"
-                                    icon="pi pi-pencil"
-                                    text rounded
-                                    severity="primary"/>
-                          <p-button *ngIf="!editing"
-                                    pRipple
-                                    type="button"
-                                    (click)="removeItem(ri)"
-                                    icon="pi pi-trash"
-                                    text rounded
-                                    severity="danger"/>
-                          <p-button *ngIf="editing"
-                                    pButton pRipple
-                                    type="button"
-                                    pSaveEditableRow
-                                    (click)="onEditSave(row)"
-                                    icon="pi pi-check"
-                                    text rounded
-                                    severity="success"/>
-                          <p-button *ngIf="editing"
-                                    pButton pRipple
-                                    type="button"
-                                    pCancelEditableRow
-                                    (click)="onEditCancel(row, ri)"
-                                    icon="pi pi-times"
-                                    text rounded
-                                    severity="danger"/>
-                        </div>
-                      </td>
                     </div>
-                  </td>
-                </tr>
-              </ng-template>
+                </div>
+            </div>
 
-              <ng-template pTemplate="footer">
-                <tr>
-                  <td colspan="8">
-                    <div class="flex items-center mt-5">
-                      <p-button (click)="addItem()" icon="pi pi-plus" label="Ajouter un produit/service"
-                                severity="primary"/>
+            <div class="border-b border-gray-700 p-5">
+                <h5>Produits / Services</h5>
+                <div class="flex flex-col mt-4 gap-3">
+                    <app-product-table [invoice]="invoice()"/>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-700 p-5">
+                <h5>Résumé</h5>
+                <div class="flex flex-col mt-4">
+                    <div class="flex flex-row border rounded-t-xl border-gray-700 gap-5 p-5 justify-between ">
+                        <span>Total HT</span>
+                        <span>{{ totalNet() | currency:'EUR':'symbol':'1.2-2' }}</span>
                     </div>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
-          </div>
-        </div>
-      </div>
+                    <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
+                        <span>Total TVA</span>
+                        <span>{{ totalVat() | currency:'EUR':'symbol':'1.2-2' }}</span>
+                    </div>
+                    <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
+                        <span>Total TTC</span>
+                        <span>{{ totalGross() | currency:'EUR':'symbol':'1.2-2' }}</span>
+                    </div>
 
-      <div class="border-b border-gray-700 p-5">
-        <h5>Résumé</h5>
-        <div class="flex flex-col mt-4">
-          <div class="flex flex-row border rounded-t-xl border-gray-700 gap-5 p-5 justify-between ">
-            <span>Total HT</span>
-            <span>{{ totalNet() | currency:'EUR':'symbol':'1.2-2' }}</span>
-          </div>
-          <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
-            <span>Total TVA</span>
-            <span>{{ totalVat() | currency:'EUR':'symbol':'1.2-2' }}</span>
-          </div>
-          <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
-            <span>Total TTC</span>
-            <span>{{ totalGross() | currency:'EUR':'symbol':'1.2-2' }}</span>
-          </div>
-
-          <div class="flex flex-row gap-5 mt-5 justify-between ">
-            <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Générer un PDF"
-                      severity="primary"/>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
+                    <div class="flex flex-row gap-5 mt-5 justify-between ">
+                        <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Générer un PDF"
+                                  severity="primary"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>

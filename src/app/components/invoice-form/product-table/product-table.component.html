@@ -1,0 +1,155 @@
+<div class="flex flex-row gap-3">
+  <p-table [value]="items().controls" dataKey="value.id" editMode="row" [rowTrackBy]="trackByItemId"
+           class="w-full">
+    <ng-template #header>
+      <tr>
+        <th>Type</th>
+        <th>Descriptif</th>
+        <th>Période</th>
+        <th>Quantité</th>
+        <th>Prix Unit. HT</th>
+        <th>Montant HT</th>
+        <th>TVA (%)</th>
+        <th class="!text-center">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-row let-editing="editing" let-ri="rowIndex">
+      <tr [pEditableRow]="row">
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-36" variant="on">
+                <input class="w-36" pInputText [formControl]="row.get('type')" id="type-{{ri}}"/>
+                <label for="type-{{ri}}">Type</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.value.type }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-36" variant="on">
+                <input class="w-36" pInputText [formControl]="row.get('description')"
+                       id="description-{{ri}}"/>
+                <label for="description-{{ri}}">Descriptif</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.value.description }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-36" variant="on">
+                <input class="w-36" pInputText [formControl]="row.get('period')" id="period-{{ri}}"/>
+                <label for="period-{{ri}}">Période</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.value.period }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-24" variant="on">
+                <input class="w-24" pInputText type="number" [formControl]="row.get('quantity')"
+                       id="quantity-{{ri}}"/>
+                <label for="quantity-{{ri}}">Quantité</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.value.quantity }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-32" variant="on">
+                <input class="w-32" pInputText type="number" [formControl]="row.get('unitPrice')"
+                       id="unitPrice-{{ri}}"/>
+                <label for="unitPrice-{{ri}}">Prix Unit. HT</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.value.unitPrice | currency:'EUR':'symbol':'1.2-2' }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-32" variant="on">
+                <input class="w-32" pInputText type="number" [formControl]="row.get('totalPriceHt')"
+                       id="totalPriceHt-{{ri}}"/>
+                <label for="totalPriceHt-{{ri}}">Montant HT</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.get('totalPriceHt').value | currency:'EUR':'symbol':'1.2-2' }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <p-cellEditor>
+            <ng-template #input>
+              <p-floatlabel class="w-24" variant="on">
+                <input class="w-24" pInputText type="number" [formControl]="row.get('taxRate')"
+                       id="taxRate-{{ri}}"/>
+                <label for="taxRate-{{ri}}">TVA (%)</label>
+              </p-floatlabel>
+            </ng-template>
+            <ng-template #output>
+              {{ row.get('taxRate').value | percent : '1.0-2' }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
+        <td>
+          <div class="flex items-center justify-center gap-2">
+            <td>
+              <div class="flex items-center justify-center gap-2">
+                @if (!editing) {
+                  <p-button pRipple type="button" pInitEditableRow (click)="onEditInit(row)"
+                            icon="pi pi-pencil" text rounded severity="primary"/>
+                  <p-button pRipple type="button" (click)="removeItem(ri)"
+                            icon="pi pi-trash" text rounded severity="danger"/>
+                } @else {
+                  <p-button pRipple type="button" pSaveEditableRow (click)="onEditSave(row)"
+                            icon="pi pi-check" text rounded severity="success"/>
+                  <p-button pRipple type="button" pCancelEditableRow (click)="onEditCancel(row, ri)"
+                            icon="pi pi-times" text rounded severity="danger"/>
+                }
+              </div>
+            </td>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <tr>
+        <td colspan="8">
+          <div class="flex items-center mt-5">
+            <p-button (click)="addItem()" icon="pi pi-plus" label="Ajouter un produit/service"
+                      severity="primary"/>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

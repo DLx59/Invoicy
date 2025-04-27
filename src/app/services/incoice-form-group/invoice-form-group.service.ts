@@ -1,4 +1,4 @@
-import {Injectable, signal, Signal} from '@angular/core';
+import {computed, Injectable, signal, Signal} from '@angular/core';
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
 import {Invoice, InvoiceItem} from '../../models/invoice.model';
 
@@ -6,7 +6,6 @@ import {Invoice, InvoiceItem} from '../../models/invoice.model';
   providedIn: 'root'
 })
 export class InvoiceFormGroupService {
-
   private formGroup: Signal<FormGroup> = signal(this.createFormGroup());
   private originalItems = new Map<number, any>();
 
@@ -23,25 +22,29 @@ export class InvoiceFormGroupService {
   public addItem(): FormGroup {
     const items = this.getItemsArray();
     const newItem = this.createItemFormGroup();
-    items.push(newItem);
+    items().push(newItem);
     return newItem;
   }
 
   public removeItem(index: number): void {
     const items = this.getItemsArray();
-    if (items.length > 1) {
-      items.removeAt(index);
+    if (items().length > 1) {
+      items().removeAt(index);
+    } else {
+      items().clear();
+      items().push(this.createItemFormGroup());
     }
   }
 
+
   public initItems(items: InvoiceItem[]): void {
     const itemsArray = this.getItemsArray();
-    itemsArray.clear();
-    items.forEach(item => itemsArray.push(this.createItemFormGroup(item)));
+    itemsArray().clear();
+    items.forEach(item => itemsArray().push(this.createItemFormGroup(item)));
   }
 
-  public getItemsArray(): FormArray<FormGroup> {
-    return this.formGroup().get('items') as FormArray<FormGroup>;
+  public getItemsArray(): Signal<FormArray<FormGroup>> {
+    return computed(() => this.formGroup().get('items') as FormArray<FormGroup>);
   }
 
   public storeOriginalItem(index: number, value: any): void {
@@ -54,16 +57,6 @@ export class InvoiceFormGroupService {
 
   public clearOriginalItem(index: number): void {
     this.originalItems.delete(index);
-  }
-
-  public initFormArrayFromInvoice(formGroup: FormGroup, invoice: Invoice): void {
-    const itemsArray = formGroup.get('items') as FormArray<FormGroup>;
-    itemsArray.clear();
-
-    invoice.items.forEach(item => {
-      const newItem = this.createItemFormGroup(item);
-      itemsArray.push(newItem);
-    });
   }
 
   private createFormGroup(): FormGroup {
@@ -107,7 +100,6 @@ export class InvoiceFormGroupService {
       calculateTotal();
     }
   }
-
 
   private createItemFormGroup(item?: InvoiceItem): FormGroup {
     const formGroup = new FormGroup({
