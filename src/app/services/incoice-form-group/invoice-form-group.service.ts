@@ -61,23 +61,27 @@ export class InvoiceFormGroupService {
 
   private createFormGroup(): FormGroup {
     return new FormGroup({
-      invoiceNumber: new FormControl<string>('', {nonNullable: true}),
-      issueDate: new FormControl<string>('', {nonNullable: true}),
+      clientAddress: new FormControl<string>('', {nonNullable: true}),
+      clientId: new FormControl<string>('', {nonNullable: true}),
+      clientName: new FormControl<string>('', {nonNullable: true}),
+      clientReference: new FormControl<string>(''),
+      clientVat: new FormControl<string>(''),
+      contractNumber: new FormControl<string>('', {nonNullable: true}),
       deadline: new FormControl<number>(0, {nonNullable: true}),
       dueDate: new FormControl<string>('', {nonNullable: true}),
-      contractNumber: new FormControl<string>('', {nonNullable: true}),
-      issuerName: new FormControl<string>('', {nonNullable: true}),
-      issuerAddress: new FormControl<string>('', {nonNullable: true}),
-      issuerPhone: new FormControl<string>('', {nonNullable: true}),
-      issuerWebsite: new FormControl<string>('', {nonNullable: true}),
-      issuerEmail: new FormControl<string>('', {nonNullable: true}),
-      issuerReference: new FormControl<string>('', {nonNullable: true}),
-      clientName: new FormControl<string>('', {nonNullable: true}),
-      clientAddress: new FormControl<string>('', {nonNullable: true}),
-      clientReference: new FormControl<string>('', {nonNullable: true}),
       interventionBy: new FormControl<string>('', {nonNullable: true}),
+      invoiceNumber: new FormControl<string>('', {nonNullable: true}),
+      issueDate: new FormControl<string>('', {nonNullable: true}),
+      issuerAddress: new FormControl<string>('', {nonNullable: true}),
+      issuerEmail: new FormControl<string>(''),
+      issuerId: new FormControl<string>('', {nonNullable: true}),
+      issuerName: new FormControl<string>('', {nonNullable: true}),
+      issuerPhone: new FormControl<string>(''),
+      issuerReference: new FormControl<string>(''),
+      issuerVAT: new FormControl<string>('', {nonNullable: true}),
+      issuerWebsite: new FormControl<string>(''),
+      items: new FormArray<FormGroup>([this.createItemFormGroup()]),
       note: new FormControl<string>('', {nonNullable: true}),
-      items: new FormArray<FormGroup>([this.createItemFormGroup()])
     });
   }
 
@@ -103,17 +107,17 @@ export class InvoiceFormGroupService {
 
   private createItemFormGroup(item?: InvoiceItem): FormGroup {
     const formGroup = new FormGroup({
-      id: new FormControl<string>(item?.id ?? crypto.randomUUID(), {nonNullable: true}),
-      type: new FormControl<string>(item?.type ?? '', {nonNullable: true}),
       description: new FormControl<string>(item?.description ?? '', {nonNullable: true}),
+      id: new FormControl<string>(item?.id ?? crypto.randomUUID(), {nonNullable: true}),
       period: new FormControl<string>(item?.period ?? '', {nonNullable: true}),
       quantity: new FormControl<number>(item?.quantity ?? 0, {nonNullable: true}),
-      unitPrice: new FormControl<number>(item?.unitPrice ?? 0, {nonNullable: true}),
+      taxRate: new FormControl<number>(item?.taxRate ?? 0.21, {nonNullable: true}),
       totalPriceHt: new FormControl<number>({
         value: (item?.quantity ?? 0) * (item?.unitPrice ?? 0),
         disabled: true
       }, {nonNullable: true}),
-      taxRate: new FormControl<number>(item?.taxRate ?? 0.21, {nonNullable: true})
+      type: new FormControl<string>(item?.type ?? '', {nonNullable: true}),
+      unitPrice: new FormControl<number>(item?.unitPrice ?? 0, {nonNullable: true}),
     });
 
     this.bindQuantityAndUnitPriceCalculation(formGroup);

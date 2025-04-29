@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {Invoice} from '../../models/invoice.model';
-import  pdfMake from 'pdfmake/build/pdfmake';
-import  pdfFonts from 'pdfmake/build/vfs_fonts';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 import {wtz_logo} from './base64-logo';
 
-pdfMake.vfs = pdfFonts .vfs;
+pdfMake.vfs = pdfFonts.vfs;
 
 @Injectable({providedIn: 'root'})
 export class PdfGeneratorService {
@@ -47,10 +47,10 @@ export class PdfGeneratorService {
             [
               {
                 stack: [
-                  { text: invoice.client.name, alignment: 'right', bold: true },
+                  {text: invoice.client.name, alignment: 'right', bold: true},
                   ...invoice.client.address
                     .split('\n')
-                    .map(line => ({ text: line, alignment: 'right' }))
+                    .map(line => ({text: line, alignment: 'right'}))
                 ],
                 margin: [0, 20, 0, 0]
               }
@@ -148,11 +148,21 @@ export class PdfGeneratorService {
               width: 'auto',
               table: {
                 body: [
-                  ['Montant total HT', subtotal.toFixed(2) + ' €'],
-                  ['Montant total TVA ' + (invoice.items[0].taxRate * 100).toFixed(2) + ' %', tax.toFixed(2) + ' €'],
+                  ['Montant total HT',
+                    {
+                      text: subtotal.toFixed(2) + ' €',
+                      alignment: 'right'
+                    }
+                  ],
+                  [`Montant total TVA ${((invoice.items[0].taxRate * 100).toFixed(2))} %`,
+                    {
+                      text: tax.toFixed(2) + ' €',
+                      alignment: 'right'
+                    }
+                  ],
                   [
                     {text: 'Montant total TTC', bold: true},
-                    {text: total.toFixed(2) + ' €', bold: true}],
+                    {text: total.toFixed(2) + ' €', bold: true, alignment: 'right'}],
                   ['Solde dû', '0.00 €']
                 ]
               },

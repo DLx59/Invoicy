@@ -1,92 +1,151 @@
 <div class="invoice-form-component m-5">
-    <div class="border rounded-xl border-gray-700">
-        <div class="flex flex-row justify-between items-center border-b border-gray-700 p-5">
-            <h2>Générateur de Factures</h2>
-            <p-button (click)="resetForm()" class="hover:bg-red-800" variant="outlined" severity="danger"
-                      [label]="'Tout effacer'"/>
+  <div class="border rounded-xl border-gray-700">
+    <div class="flex flex-row justify-between items-center border-b border-gray-700 p-5">
+      <h2>Générateur de Factures</h2>
+      <p-button (click)="resetForm()" class="hover:bg-red-800" variant="outlined" severity="danger"
+                [label]="'Tout effacer'"/>
+    </div>
+    <form class="flex flex-col gap-2" [formGroup]="formGroup">
+      <div class="border-b border-gray-700 p-5">
+        <div class="flex flex-row justify-between">
+          <h5>Informations société</h5>
+          <div>
+            <p-toast/>
+            <p-button
+              label="Ajouter un champ"
+              icon="pi pi-angle-down"
+              size="small"
+              [iconPos]="'right'"
+              (click)="issuerMenu.toggle($event)"
+              severity="primary">
+            </p-button>
+
+            <p-menu #issuerMenu [popup]="true" [model]="issuerOptions"></p-menu>
+          </div>
         </div>
-        <form class="flex flex-col gap-2" [formGroup]="formGroup">
-            <div class="border-b border-gray-700 p-5">
-                <h5>Informations société</h5>
-                <div class="flex flex-col mt-4 gap-3">
-                    <div class="flex flex-row gap-3">
-                        <p-floatlabel class="w-full" variant="on">
-                            <input class="w-full" [formControlName]="'issuerName'" pInputText id="issuerName"/>
-                            <label for="issuerName">Société</label>
-                        </p-floatlabel>
 
-                        <p-floatlabel class="w-full" variant="on">
-              <textarea class="w-full" id="issuerAddress" [formControlName]="'issuerAddress'" rows="1" pTextarea
-                        [autoResize]="autoResizeEnabled()"></textarea>
-                            <label for="issuerAddress">Adresse</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex flex-row gap-3">
-                        <p-floatlabel class="w-full" variant="on">
-                            <input class="w-full" [formControlName]="'issuerPhone'" pInputText id="issuerPhone"/>
-                            <label for="issuerPhone">Téléphone</label>
-                        </p-floatlabel>
+        <div class="flex flex-col mt-4 gap-3">
+          <div class="flex flex-row flex-wrap gap-3">
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <input class="w-full" [formControlName]="'issuerName'" pInputText id="issuerName"/>
+              <label for="issuerName">Société</label>
+            </p-floatlabel>
 
-                        <p-floatlabel class="w-full" variant="on">
-                            <input class="w-full" [formControlName]="'issuerWebsite'" pInputText id="issuerWebsite"/>
-                            <label for="issuerWebsite">Site web</label>
-                        </p-floatlabel>
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+    <textarea class="w-full" id="issuerAddress" [formControlName]="'issuerAddress'" rows="1" pTextarea
+              [autoResize]="autoResizeEnabled()"></textarea>
+              <label for="issuerAddress">Adresse</label>
+            </p-floatlabel>
 
-                        <p-floatlabel class="w-full" variant="on">
-                            <input class="w-full" [formControlName]="'issuerEmail'" pInputText id="issuerEmail"/>
-                            <label for="issuerEmail">Email</label>
-                        </p-floatlabel>
-                    </div>
-                </div>
-            </div>
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <input class="w-full" [formControlName]="'issuerId'" pInputText id="issuerId"/>
+              <label for="issuerId">Numéro d'entreprise</label>
+            </p-floatlabel>
 
-            <div class="border-b border-gray-700 p-5">
-                <h5>Client</h5>
-                <div class="flex flex-col mt-4 gap-3">
-                    <div class="flex flex-row gap-3">
-                        <p-floatlabel class="w-full" variant="on">
-                            <input class="w-full" [formControlName]="'clientName'" pInputText id="clientName"/>
-                            <label for="clientName">Société</label>
-                        </p-floatlabel>
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <input class="w-full" [formControlName]="'issuerVAT'" pInputText id="issuerVAT"/>
+              <label for="issuerVAT">Numéro de TVA</label>
+            </p-floatlabel>
 
-                        <p-floatlabel class="w-full" variant="on">
+            @if (issuerInputState().phone) {
+              <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                <input class="w-full" [formControlName]="'issuerPhone'" pInputText id="issuerPhone"/>
+                <label for="issuerPhone">Téléphone</label>
+              </p-floatlabel>
+            }
+
+            @if (issuerInputState().website) {
+              <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                <input class="w-full" [formControlName]="'issuerWebsite'" pInputText id="issuerWebsite"/>
+                <label for="issuerWebsite">Site web</label>
+              </p-floatlabel>
+            }
+
+            @if (issuerInputState().email) {
+              <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                <input class="w-full" [formControlName]="'issuerEmail'" pInputText id="issuerEmail"/>
+                <label for="issuerEmail">Email</label>
+              </p-floatlabel>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="border-b border-gray-700 p-5">
+        <div class="flex flex-row justify-between">
+          <h5>Information client</h5>
+          <div>
+            <p-toast/>
+            <p-button
+              label="Ajouter un champ"
+              icon="pi pi-angle-down"
+              size="small"
+              [iconPos]="'right'"
+              (click)="clientMenu.toggle($event)"
+              severity="primary">
+            </p-button>
+
+            <p-menu #clientMenu [popup]="true" [model]="clientOptions"></p-menu>
+          </div>
+        </div>
+        <div class="flex flex-col mt-4 gap-3">
+          <div class="flex flex-row flex-wrap gap-3">
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <input class="w-full" [formControlName]="'clientName'" pInputText id="clientName"/>
+              <label for="clientName">Société</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
                           <textarea class="w-full" id="clientAddress" [formControlName]="'clientAddress'" pTextarea
                                     rows="1" [autoResize]="autoResizeEnabled()"></textarea>
-                            <label for="clientAddress">Adresse</label>
-                        </p-floatlabel>
-                    </div>
-                </div>
-            </div>
+              <label for="clientAddress">Adresse</label>
+            </p-floatlabel>
 
-            <div class="border-b border-gray-700 p-5">
-                <h5>Produits / Services</h5>
-                <div class="flex flex-col mt-4 gap-3">
-                    <app-product-table [invoice]="invoice()"/>
-                </div>
-            </div>
+            @if (clientInputState().vat) {
+              <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                <input class="w-full" [formControlName]="'clientVat'" pInputText id="clientVat"/>
+                <label for="clientVat">Numéro de TVA</label>
+              </p-floatlabel>
+            }
+          </div>
+        </div>
+      </div>
 
-            <div class="border-b border-gray-700 p-5">
-                <h5>Résumé</h5>
-                <div class="flex flex-col mt-4">
-                    <div class="flex flex-row border rounded-t-xl border-gray-700 gap-5 p-5 justify-between ">
-                        <span>Total HT</span>
-                        <span>{{ totalNet() | currency:'EUR':'symbol':'1.2-2' }}</span>
-                    </div>
-                    <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
-                        <span>Total TVA</span>
-                        <span>{{ totalVat() | currency:'EUR':'symbol':'1.2-2' }}</span>
-                    </div>
-                    <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
-                        <span>Total TTC</span>
-                        <span>{{ totalGross() | currency:'EUR':'symbol':'1.2-2' }}</span>
-                    </div>
+      <div class="border-b border-gray-700 p-5">
+        <h5>Informations contrat</h5>
+        <div class="flex flex-col mt-4 gap-3">
+        </div>
+      </div>
 
-                    <div class="flex flex-row gap-5 mt-5 justify-between ">
-                        <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Générer un PDF"
-                                  severity="primary"/>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+      <div class="border-b border-gray-700 p-5">
+        <h5>Produits / Services</h5>
+        <div class="flex flex-col mt-4 gap-3">
+          <app-product-table [invoice]="invoice()"/>
+        </div>
+      </div>
+
+      <div class="border-b border-gray-700 p-5">
+        <h5>Résumé</h5>
+        <div class="flex flex-col mt-4">
+          <div class="flex flex-row border rounded-t-xl border-gray-700 gap-5 p-5 justify-between ">
+            <span>Total HT</span>
+            <span>{{ totalNet() | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
+            <span>Total TVA</span>
+            <span>{{ totalVat() | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
+            <span>Total TTC</span>
+            <span>{{ totalGross() | currency:'EUR':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="flex flex-row gap-5 mt-5 justify-between ">
+            <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Générer un PDF"
+                      severity="primary"/>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
