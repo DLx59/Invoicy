@@ -1,31 +1,19 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
-import {Invoice} from '../../models/invoice.model';
-import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
-import {ReactiveFormsModule} from '@angular/forms';
+import {Invoice, Total} from '../../models/invoice.model';
+import {FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
-import {CurrencyPipe, DatePipe} from '@angular/common';
+import {DatePipe} from '@angular/common';
 import {InvoiceFormGroupService} from '../../services/incoice-form-group/invoice-form-group.service';
 import {TableModule} from "primeng/table";
-import {FloatLabel} from "primeng/floatlabel";
-import {Button} from "primeng/button";
-import {Textarea} from "primeng/textarea";
-import {InputText} from "primeng/inputtext";
-import {ProductTableComponent} from "../product-table/product-table.component";
-import {Menu} from 'primeng/menu';
 import {MenuItem, MessageService} from 'primeng/api';
-import {Toast} from 'primeng/toast';
-import {
-  ClientInputStateModel,
-  defaultClientInputState,
-  defaultIssuerInputState,
-  IssuerInputStateModel
-} from '../../models/input-state.model';
-import {DatePicker} from 'primeng/datepicker';
-import {InputGroup} from 'primeng/inputgroup';
-import {InputGroupAddon} from 'primeng/inputgroupaddon';
-import {Checkbox, CheckboxChangeEvent} from 'primeng/checkbox';
-import {InputNumber} from 'primeng/inputnumber';
-import {PdfPreviewModalComponent} from '../../../../shared/components/pdf-preview-modal/pdf-preview-modal.component';
+import {Steps} from 'primeng/steps';
+import {IssuerInformationComponent} from '../issuer-information/issuer-information.component';
+import {ClientInformationComponent} from '../client-information/client-information.component';
+import {ContractInformationComponent} from '../contract-information/contract-information.component';
+import {ProductComponent} from '../product/product.component';
+import {Button} from 'primeng/button';
+import {PdfPreviewComponent} from '../../../../shared/components/pdf-preview/pdf-preview.component';
+import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
 
 @Component({
   selector: 'app-invoice-form',
@@ -33,74 +21,57 @@ import {PdfPreviewModalComponent} from '../../../../shared/components/pdf-previe
   styleUrls: ['./invoice-form.component.scss'],
   imports: [
     TableModule,
-    FloatLabel,
-    Button,
     ReactiveFormsModule,
-    Textarea,
-    InputText,
-    CurrencyPipe,
-    ProductTableComponent,
-    Menu,
-    Toast,
-    DatePicker,
-    InputGroup,
-    InputGroupAddon,
-    Checkbox,
-    InputNumber,
-    PdfPreviewModalComponent
+    Steps,
+    IssuerInformationComponent,
+    ClientInformationComponent,
+    ContractInformationComponent,
+    ProductComponent,
+    Button,
+    PdfPreviewComponent
   ],
   providers: [DatePipe, MessageService],
 })
 export class InvoiceFormComponent {
   public invoice!: WritableSignal<Invoice>;
   public autoResizeEnabled = signal(false);
-  public showPdfPreviewModal = signal(false);
-  public totalVat: Signal<number> = computed(() =>
-    this.invoice().items.reduce((acc, item) => {
-      const totalHt = item.totalPriceHt ?? 0;
-      const taxRate = item.taxRate ?? 0;
-      return acc + totalHt * taxRate;
-    }, 0)
-  );
-  public issuerOptions: MenuItem[] = [
+  public menuActive: WritableSignal<number> = signal(0);
+  public items: MenuItem[] = [
     {
-      label: 'Téléphone',
-      icon: 'pi pi-phone',
-      command: () => this.addIssuerPhoneInput()
+      label: 'Informations société'
     },
     {
-      label: 'Site web',
-      icon: 'pi pi-globe',
-      command: () => this.addIssuerWebsiteInput()
+      label: 'Informations client'
     },
     {
-      label: 'Email',
-      icon: 'pi pi-envelope',
-      command: () => this.addIssuerEmailInput()
+      label: 'Informations contrat'
     },
+    {
+      label: 'Produits/Services'
+    },
+    {
+      label: 'Aperçu'
+    }
   ];
-  public clientOptions: MenuItem[] = [
-    {
-      label: 'Numéro d\'entreprise',
-      icon: 'pi pi-building',
-      command: () => this.addCLientIdInput()
-    },
-    {
-      label: 'Numéro de TVA',
-      icon: 'pi pi-building',
-      command: () => this.addClientVATInput()
-    },
-  ];
-  public readonly issuerInputState: WritableSignal<IssuerInputStateModel> = signal(defaultIssuerInputState);
-  public readonly clientInputState: WritableSignal<ClientInputStateModel> = signal(defaultClientInputState);
+  public totalVat: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => {
+    const totalHt: number = item.totalPriceHt ?? 0;
+    const taxRate: number = item.taxRate ?? 0;
+    return acc + totalHt * taxRate;
+  }, 0));
   public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
-  public totalGross: Signal<number> = computed(() => this.totalNet() + this.totalVat());
+  public totalAmount: Signal<number> = computed(() => this.totalNet() + this.totalVat());
+  public total: Signal<Total> = computed(() => ({
+    vat: this.totalVat(),
+    net: this.totalNet(),
+    amount: this.totalAmount()
+  }))
   public pdfSrc: WritableSignal<Blob | string> = signal('');
+  public canDownloadPdf: WritableSignal<boolean> = signal(false);
   private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
-  public formGroup = this.invoiceFormGroupService.getFormGroup();
-  private readonly datePipe = inject(DatePipe);
-  private readonly pdfGeneratorService = inject(PdfGeneratorService);
-  private readonly invoiceNumberService = inject(InvoiceNumberService);
+  public formGroup: FormGroup = this.invoiceFormGroupService.getFormGroup();
+  private readonly datePipe: DatePipe = inject(DatePipe);
+  private readonly invoiceNumberService: InvoiceNumberService = inject(InvoiceNumberService);
+  private readonly pdfGeneratorService: PdfGeneratorService = inject(PdfGeneratorService);
 
   constructor() {
     this.initDefaultInvoice();
@@ -120,10 +91,14 @@ export class InvoiceFormComponent {
       queueMicrotask(() => {
         this.formGroup.patchValue({
           clientAddress: current.client.address,
+          clientCity: current.client.address.city,
+          clientCountry: current.client.address.country,
           clientId: current.client.id,
           clientName: current.client.name,
           clientReference: current.client.reference,
+          clientStreet: current.client.address.street,
           clientVat: current.client.vat,
+          clientZipCode: current.client.address.zipCode,
           contractNumber: current.contractNumber,
           deadline: current.deadline,
           dueDate: current.dueDate,
@@ -131,14 +106,17 @@ export class InvoiceFormComponent {
           invoiceNumber: current.invoiceNumber,
           isPaid: current.isPaid,
           issueDate: current.issueDate,
-          issuerAddress: current.issuer.address,
+          issuerCity: current.issuer.address.city,
+          issuerCountry: current.issuer.address.country,
           issuerEmail: current.issuer.email,
           issuerId: current.issuer.id,
           issuerName: current.issuer.name,
           issuerPhone: current.issuer.phone,
           issuerReference: current.issuer.reference,
+          issuerStreet: current.issuer.address.street,
           issuerVAT: current.issuer.vat,
           issuerWebsite: current.issuer.website,
+          issuerZipCode: current.issuer.address.zipCode,
           note: current.note,
           terms: current.terms
         }, {emitEvent: false});
@@ -149,7 +127,7 @@ export class InvoiceFormComponent {
     effect(() => {
       const isPaid = this.formGroup.get('isPaid')?.value;
       const currentValue = this.formGroup.get('duAmount')?.value;
-      const expectedValue = isPaid ? 0 : this.totalNet();
+      const expectedValue = isPaid ? 0 : this.total().amount;
 
       if (currentValue !== expectedValue) {
         this.formGroup.get('duAmount')?.setValue(expectedValue, {emitEvent: false});
@@ -162,30 +140,42 @@ export class InvoiceFormComponent {
 
   }
 
-  public refreshPdfDialogState(event: boolean) {
-    console.warn('refreshPdfDialogState', event);
-    this.showPdfPreviewModal.set(event);
+  public async vizualisePDF(): Promise<void> {
+    try {
+      const blob: Blob = await this.pdfGeneratorService.getBlob(this.invoice());
+      this.pdfSrc.set(URL.createObjectURL(blob));
+    } catch (error) {
+      console.error('Erreur de génération PDF', error);
+    }
   }
 
   public downloadPDF() {
     this.pdfGeneratorService.download(this.invoice());
+  }
 
-    if (this.isCurrentInvoiceAutoGenerated()) {
-      this.invoiceNumberService.incrementCounter();
-      const updated = {...this.invoice()};
-      updated.invoiceNumber = this.invoiceNumberService.generateNextInvoiceNumber();
-      this.invoice.set(updated);
-      this.formGroup.get('invoiceNumber')?.setValue(updated.invoiceNumber, {emitEvent: false});
+  public onActiveIndexChange(event: number) {
+    this.menuActive.set(event);
+    this.preparePDF();
+  }
+
+  public preparePDF(): void {
+    if (this.menuActive() === 4) {
+      this.vizualisePDF().then(() => this.canDownloadPdf.set(true)).catch(() => this.canDownloadPdf.set(false));
     }
   }
 
-  public async vizualisePDF(): Promise<void> {
-    try {
-      const blob = await this.pdfGeneratorService.getBlob(this.invoice());
-      this.pdfSrc.set(URL.createObjectURL(blob));
-      this.showPdfPreviewModal.set(true);
-    } catch (error) {
-      console.error('Erreur de génération PDF', error);
+  public nextStep(): void {
+    const current = this.menuActive();
+    if (current < this.items.length - 1) {
+      this.menuActive.set(current + 1);
+    }
+    this.preparePDF();
+  }
+
+  public prevStep(): void {
+    const current = this.menuActive();
+    if (current > 0) {
+      this.menuActive.set(current - 1);
     }
   }
 
@@ -242,59 +232,8 @@ export class InvoiceFormComponent {
 
     this.invoiceFormGroupService.resetFormGroup();
     this.invoiceFormGroupService.initItems(this.invoice().items);
-    this.issuerInputState.set(defaultIssuerInputState);
-    this.clientInputState.set(defaultClientInputState);
-  }
-
-  public addIssuerPhoneInput() {
-    this.issuerInputState.update((issuerInputStateModel: IssuerInputStateModel) => ({
-      ...issuerInputStateModel,
-      phone: true
-    }))
-  }
-
-  public addIssuerWebsiteInput() {
-    this.issuerInputState.update((issuerInputStateModel: IssuerInputStateModel) => ({
-      ...issuerInputStateModel,
-      website: true
-    }))
-  }
-
-  public addIssuerEmailInput() {
-    this.issuerInputState.update((issuerInputStateModel: IssuerInputStateModel) => ({
-      ...issuerInputStateModel,
-      email: true
-    }))
-  }
-
-  public addClientVATInput() {
-    this.clientInputState.update((clientInputStateModel: ClientInputStateModel) => ({
-      ...clientInputStateModel,
-      vat: true
-    }))
-  }
-
-  public addCLientIdInput() {
-    this.clientInputState.update((clientInputStateModel: ClientInputStateModel) => ({
-      ...clientInputStateModel,
-      id: true
-    }))
-  }
-
-  public isEndOfMonth(event: CheckboxChangeEvent): void {
-    this.formGroup.get('isEndOfMonth')?.setValue(event.checked);
-    this.formGroup.updateValueAndValidity();
-  }
-
-  public isAllreadyPaid(event: CheckboxChangeEvent): void {
-    this.formGroup.get('duAmount')?.setValue(this.totalNet());
-    this.formGroup.get('isPaid')?.setValue(event.checked);
-    this.formGroup.get('duAmount')?.enable();
-    if (event.checked) {
-      this.formGroup.get('duAmount')?.setValue(0);
-      this.formGroup.get('duAmount')?.disable();
-    }
-    this.formGroup.updateValueAndValidity();
+    // this.issuerInputState.set(defaultIssuerInputState);
+    // this.clientInputState.set(defaultClientInputState);
   }
 
   private calculateDueDate(issueDate: string, deadline: number, isEndOfMonth: boolean): string {
@@ -373,21 +312,26 @@ export class InvoiceFormComponent {
 
   private updateInvoiceFromForm(form: any): void {
     const updated = {...this.invoice()};
-    updated.invoiceNumber = form.invoiceNumber ?? '';
-    updated.issueDate = form.issueDate ?? '';
+    updated.contractNumber = form.contractNumber ?? '';
     updated.deadline = form.deadline ?? '';
     updated.duAmount = form.duAmount ?? '';
     updated.dueDate = this.calculateDueDate(updated.issueDate, updated.deadline, updated.isEndOfMonth);
-    updated.contractNumber = form.contractNumber ?? '';
     updated.interventionBy = form.interventionBy ?? '';
-    updated.note = form.note ?? '';
-    updated.terms = form.terms ?? '';
+    updated.invoiceNumber = form.invoiceNumber ?? '';
     updated.isEndOfMonth = form.isEndOfMonth ?? false;
     updated.isPaid = form.isPaid ?? false;
+    updated.issueDate = form.issueDate ?? '';
+    updated.note = form.note ?? '';
+    updated.terms = form.terms ?? '';
 
     updated.issuer = {
       ...updated.issuer,
-      address: form.issuerAddress ?? '',
+      address: {
+        city: form.issuerCity || '',
+        country: form.issuerCountry || '',
+        street: form.issuerStreet || '',
+        zipCode: form.issuerZipCode || ''
+      },
       email: form.issuerEmail ?? '',
       id: form.issuerId ?? '',
       name: form.issuerName ?? '',
@@ -399,7 +343,12 @@ export class InvoiceFormComponent {
 
     updated.client = {
       ...updated.client,
-      address: form.clientAddress ?? '',
+      address: {
+        city: form.clientCity || '',
+        country: form.clientCountry || '',
+        street: form.clientStreet || '',
+        zipCode: form.clientZipCode || ''
+      },
       id: form.clientId ?? '',
       name: form.clientName ?? '',
       reference: form.clientReference ?? '',
@@ -420,9 +369,4 @@ export class InvoiceFormComponent {
     this.invoice.set(updated);
   }
 
-  private isCurrentInvoiceAutoGenerated(): boolean {
-    const current = this.invoice().invoiceNumber;
-    const expected = this.invoiceNumberService.generateNextInvoiceNumber();
-    return current === expected;
-  }
 }

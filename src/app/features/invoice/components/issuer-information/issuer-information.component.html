@@ -1,0 +1,79 @@
+<div [formGroup]="formGroup">
+  <div class="flex flex-row justify-between">
+    <h5>Informations société</h5>
+    <div>
+      <p-button
+        label="Ajouter un champ"
+        icon="pi pi-angle-down"
+        size="small"
+        [iconPos]="'right'"
+        (click)="issuerMenu.toggle($event)"
+        severity="primary">
+      </p-button>
+
+      <p-menu #issuerMenu [popup]="true" [model]="issuerOptions"></p-menu>
+    </div>
+  </div>
+
+  <div class="flex flex-col mt-4 gap-3">
+    <div class="flex flex-row flex-wrap gap-3">
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerName'" pInputText id="issuerName"/>
+        <label for="issuerName">Société</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerStreet'" pInputText id="issuerStreet"/>
+        <label for="issuerStreet">Numéro et Rue</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerZipCode'" pInputText id="issuerZipCode"/>
+        <label for="issuerZipCode">Code postal</label>
+      </p-floatlabel>
+
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerCity'" pInputText id="issuerCity"/>
+        <label for="issuerCity">Ville</label>
+      </p-floatlabel>
+
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerCountry'" pInputText id="issuerCountry"/>
+        <label for="issuerCountry">Pays</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerId'" pInputText id="issuerId"/>
+        <label for="issuerId">Numéro d'entreprise</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'issuerVAT'" pInputText id="issuerVAT"/>
+        <label for="issuerVAT">Numéro de TVA</label>
+      </p-floatlabel>
+
+      @if (issuerInputState().phone) {
+        <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+          <input class="w-full" [formControlName]="'issuerPhone'" pInputText id="issuerPhone"/>
+          <label for="issuerPhone">Téléphone</label>
+        </p-floatlabel>
+      }
+
+      @if (issuerInputState().website) {
+        <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+          <input class="w-full" [formControlName]="'issuerWebsite'" pInputText id="issuerWebsite"/>
+          <label for="issuerWebsite">Site web</label>
+        </p-floatlabel>
+      }
+
+      @if (issuerInputState().email) {
+        <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+          <input class="w-full" [formControlName]="'issuerEmail'" pInputText id="issuerEmail"/>
+          <label for="issuerEmail">Email</label>
+        </p-floatlabel>
+      }
+    </div>
+  </div>
+</div>

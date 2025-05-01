@@ -32,9 +32,9 @@ export interface Invoice {
 }
 
 export interface Address {
-  street: string;
   city: string;
   country: string;
+  street: string;
   zipCode: string;
 }
 
@@ -47,4 +47,10 @@ export interface InvoiceItem {
   totalPriceHt?: number;
   type: string
   unitPrice: number;
+}
+
+export interface Total {
+  net: number;
+  vat: number;
+  amount: number;
 }

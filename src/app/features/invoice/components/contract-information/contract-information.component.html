@@ -1,0 +1,72 @@
+<div [formGroup]="formGroup">
+  <h5>Informations contrat</h5>
+  <div class="flex flex-col mt-4 gap-3">
+    <div class="flex flex-row flex-wrap gap-3">
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <p-date-picker [iconDisplay]="'input'" [showIcon]="true" dateFormat="dd/mm/yy"
+                       [inputId]="'issueDatePicker'"
+                       [style]="{ width: '100%' }" [formControlName]="'issueDate'" id="issueDate"/>
+        <label for="issueDate">Date d'émission</label>
+      </p-floatlabel>
+
+      <div class="w-full sm:w-5/12 md:w-4/12">
+        <p-inputgroup>
+          <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+            <input class="w-full" type="number" [formControlName]="'deadline'" pInputText id="deadline"/>
+            <label for="deadline">Délai de règlement (jours)/Fin de mois</label>
+          </p-floatlabel>
+          <p-inputgroup-addon>
+            <p-checkbox (onChange)="isEndOfMonth($event)" [formControlName]="'isEndOfMonth'"
+                        [binary]="true"></p-checkbox>
+          </p-inputgroup-addon>
+        </p-inputgroup>
+      </div>
+
+
+      <div class="w-full sm:w-5/12 md:w-4/12">
+        <p-floatlabel class="w-full" variant="on">
+          <input class="w-full" [formControlName]="'dueDate'" pInputText id="dueDate"/>
+          <label for="dueDate">Échéance</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="w-full sm:w-5/12 md:w-4/12">
+        <p-floatlabel class="w-full" variant="on">
+          <input class="w-full" [formControlName]="'clientReference'" pInputText id="clientReference"/>
+          <label for="clientReference">Votre référence</label>
+        </p-floatlabel>
+      </div>
+
+
+      <div class="w-full sm:w-5/12 md:w-4/12">
+        <p-floatlabel class="w-full" variant="on">
+          <input class="w-full" [formControlName]="'issuerReference'" pInputText id="issuerReference"/>
+          <label for="issuerReference">Notre référence</label>
+        </p-floatlabel>
+      </div>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'contractNumber'" pInputText id="contractNumber"/>
+        <label for="contractNumber">N° contrat</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'interventionBy'" pInputText id="interventionBy"/>
+        <label for="interventionBy">Intervenant</label>
+      </p-floatlabel>
+
+<!--      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">-->
+<!--                          <textarea class="w-full" id="note" [formControlName]="'note'" pTextarea-->
+<!--                                    rows="1" [autoResize]="autoResizeEnabled()"></textarea>-->
+<!--        <label for="note">Note</label>-->
+<!--      </p-floatlabel>-->
+
+<!--      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">-->
+<!--                          <textarea class="w-full" id="terms" [formControlName]="'terms'" pTextarea-->
+<!--                                    rows="1" [autoResize]="autoResizeEnabled()"></textarea>-->
+<!--        <label for="terms">Conditions</label>-->
+<!--      </p-floatlabel>-->
+    </div>
+  </div>
+</div>

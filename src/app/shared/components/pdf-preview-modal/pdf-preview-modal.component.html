@@ -8,5 +8,5 @@
                 severity="primary"/>
     </div>
   </ng-template>
-  <ngx-extended-pdf-viewer [showToolbar]="false" [zoom]="80" [src]="pdfSrc()" height="100%"/>
+  <app-pdf-preview [pdfSrc]="pdfSrc()"></app-pdf-preview>
 </p-dialog>

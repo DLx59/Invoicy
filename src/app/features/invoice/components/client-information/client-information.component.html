@@ -1,0 +1,62 @@
+<div [formGroup]="formGroup">
+  <div class="flex flex-row justify-between">
+    <h5>Information client</h5>
+    <div>
+      <p-toast/>
+      <p-button
+        label="Ajouter un champ"
+        icon="pi pi-angle-down"
+        size="small"
+        [iconPos]="'right'"
+        (click)="clientMenu.toggle($event)"
+        severity="primary">
+      </p-button>
+
+      <p-menu #clientMenu [popup]="true" [model]="clientOptions"></p-menu>
+    </div>
+  </div>
+  <div class="flex flex-col mt-4 gap-3">
+    <div class="flex flex-row flex-wrap gap-3">
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'clientName'" pInputText id="clientName"/>
+        <label for="clientName">Société</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'clientStreet'" pInputText id="clientStreet"/>
+        <label for="clientStreet">Numéro et Rue</label>
+      </p-floatlabel>
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'clientZipCode'" pInputText id="clientZipCode"/>
+        <label for="clientZipCode">Code postal</label>
+      </p-floatlabel>
+
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'clientCity'" pInputText id="clientCity"/>
+        <label for="clientCity">Ville</label>
+      </p-floatlabel>
+
+
+      <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+        <input class="w-full" [formControlName]="'clientCountry'" pInputText id="clientCountry"/>
+        <label for="clientCountry">Pays</label>
+      </p-floatlabel>
+
+      @if (clientInputState().id) {
+        <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+          <input class="w-full" [formControlName]="'clientId'" pInputText id="clientId"/>
+          <label for="clientId">Numéro d'entreprise</label>
+        </p-floatlabel>
+      }
+
+      @if (clientInputState().vat) {
+        <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+          <input class="w-full" [formControlName]="'clientVat'" pInputText id="clientVat"/>
+          <label for="clientVat">Numéro de TVA</label>
+        </p-floatlabel>
+      }
+    </div>
+  </div>
+</div>

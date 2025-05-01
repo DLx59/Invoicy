@@ -1,0 +1,25 @@
+<div class="flex flex-col mt-4">
+  <div class="flex flex-row border rounded-t-xl border-gray-700 gap-5 p-5 justify-between ">
+    <span>Total HT</span>
+    <span>{{ this.total().net | currency:'EUR':'symbol':'1.2-2' }}</span>
+  </div>
+  <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
+    <span>Total TVA</span>
+    <span>{{ this.total().vat | currency:'EUR':'symbol':'1.2-2' }}</span>
+  </div>
+  <div class="flex flex-row border border-t-0 border-gray-700 gap-5 p-5 justify-between ">
+    <span>Total TTC</span>
+    <span>{{ this.total().amount | currency:'EUR':'symbol':'1.2-2' }}</span>
+  </div>
+
+  <div class="flex flex-row gap-5 mt-5">
+    <p-button (click)="vizualisePDF()" icon="pi pi-eye" label="Visualiser la facture"
+              severity="primary"/>
+
+    @if (showPdfPreviewModal()) {
+      <app-pdf-preview-modal (isOpen)="refreshPdfDialogState($event)" (onDownload)="downloadPDF()"
+                             [invoiceNumber]="invoice().invoiceNumber" [pdfSrc]="pdfSrc()"
+                             [showDialog]="showPdfPreviewModal()"></app-pdf-preview-modal>
+    }
+  </div>
+</div>
