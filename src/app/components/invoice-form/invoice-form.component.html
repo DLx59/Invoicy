@@ -101,6 +101,13 @@
               <label for="clientAddress">Adresse</label>
             </p-floatlabel>
 
+            @if (clientInputState().id) {
+              <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                <input class="w-full" [formControlName]="'clientId'" pInputText id="clientId"/>
+                <label for="clientId">Numéro d'entreprise</label>
+              </p-floatlabel>
+            }
+
             @if (clientInputState().vat) {
               <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
                 <input class="w-full" [formControlName]="'clientVat'" pInputText id="clientVat"/>
@@ -114,6 +121,73 @@
       <div class="border-b border-gray-700 p-5">
         <h5>Informations contrat</h5>
         <div class="flex flex-col mt-4 gap-3">
+          <div class="flex flex-row flex-wrap gap-3">
+
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <p-date-picker [iconDisplay]="'input'" [showIcon]="true" dateFormat="dd/mm/yy"
+                             [inputId]="'issueDatePicker'"
+                             [style]="{ width: '100%' }" [formControlName]="'issueDate'" id="issueDate"/>
+              <label for="issueDate">Date d'émission</label>
+            </p-floatlabel>
+
+            <div class="w-full sm:w-5/12 md:w-4/12">
+              <p-inputgroup>
+                <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                  <input class="w-full" type="number" [formControlName]="'deadline'" pInputText id="deadline"/>
+                  <label for="deadline">Délai de règlement (jours)/Fin de mois</label>
+                </p-floatlabel>
+                <p-inputgroup-addon>
+                  <p-checkbox (onChange)="isEndOfMonth($event)" [formControlName]="'isEndOfMonth'"
+                              [binary]="true"></p-checkbox>
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+
+
+            <div class="w-full sm:w-5/12 md:w-4/12">
+              <p-floatlabel class="w-full" variant="on">
+                <input class="w-full" [formControlName]="'dueDate'" pInputText id="dueDate"/>
+                <label for="dueDate">Échéance</label>
+              </p-floatlabel>
+            </div>
+
+            <div class="w-full sm:w-5/12 md:w-4/12">
+              <p-floatlabel class="w-full" variant="on">
+                <input class="w-full" [formControlName]="'clientReference'" pInputText id="clientReference"/>
+                <label for="clientReference">Votre référence</label>
+              </p-floatlabel>
+            </div>
+
+
+            <div class="w-full sm:w-5/12 md:w-4/12">
+              <p-floatlabel class="w-full" variant="on">
+                <input class="w-full" [formControlName]="'issuerReference'" pInputText id="issuerReference"/>
+                <label for="issuerReference">Notre référence</label>
+              </p-floatlabel>
+            </div>
+
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <input class="w-full" [formControlName]="'contractNumber'" pInputText id="contractNumber"/>
+              <label for="contractNumber">N° contrat</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <input class="w-full" [formControlName]="'interventionBy'" pInputText id="interventionBy"/>
+              <label for="interventionBy">Intervenant</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                          <textarea class="w-full" id="note" [formControlName]="'note'" pTextarea
+                                    rows="1" [autoResize]="autoResizeEnabled()"></textarea>
+              <label for="note">Note</label>
+            </p-floatlabel>
+
+            <p-floatlabel class="w-full sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+                          <textarea class="w-full" id="terms" [formControlName]="'terms'" pTextarea
+                                    rows="1" [autoResize]="autoResizeEnabled()"></textarea>
+              <label for="terms">Conditions</label>
+            </p-floatlabel>
+          </div>
         </div>
       </div>
 
@@ -121,6 +195,21 @@
         <h5>Produits / Services</h5>
         <div class="flex flex-col mt-4 gap-3">
           <app-product-table [invoice]="invoice()"/>
+        </div>
+        <div class="mt-4 gap-3">
+          <p-inputgroup>
+            <p-floatlabel class="w-33 sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
+              <p-inputNumber class="w-33" [formControlName]="'duAmount'" id="duAmount" mode="currency"
+                             inputId="duAmount" currency="EUR"/>
+              <label for="duAmount">Solde dû/Déjà réglé</label>
+            </p-floatlabel>
+            <p-inputgroup-addon>
+              <p-checkbox (onChange)="isAllreadyPaid($event)" [formControlName]="'isPaid'"
+                          [binary]="true"></p-checkbox>
+            </p-inputgroup-addon>
+          </p-inputgroup>
+
+
         </div>
       </div>
 
@@ -140,9 +229,18 @@
             <span>{{ totalGross() | currency:'EUR':'symbol':'1.2-2' }}</span>
           </div>
 
-          <div class="flex flex-row gap-5 mt-5 justify-between ">
-            <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Générer un PDF"
+          <div class="flex flex-row gap-5 mt-5">
+            <p-button (click)="vizualisePDF()" icon="pi pi-eye" label="Visualiser la facture"
                       severity="primary"/>
+
+            <p-button (click)="downloadPDF()" icon="pi pi-file-pdf" label="Télécharger la facture"
+                      severity="primary"/>
+
+            @if (showPdfPreviewModal()) {
+              <app-pdf-preview-modal (isOpen)="refreshPdfDialogState($event)" (onDownload)="downloadPDF()"
+                                     [invoiceNumber]="invoice().invoiceNumber" [pdfSrc]="pdfSrc()"
+                                     [showDialog]="showPdfPreviewModal()"></app-pdf-preview-modal>
+            }
           </div>
         </div>
       </div>

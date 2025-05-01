@@ -3,12 +3,32 @@ import {Invoice} from '../../models/invoice.model';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import {wtz_logo} from './base64-logo';
+import {TDocumentDefinitions} from 'pdfmake/interfaces';
 
 pdfMake.vfs = pdfFonts.vfs;
 
 @Injectable({providedIn: 'root'})
 export class PdfGeneratorService {
-  generate(invoice: Invoice) {
+  public open(invoice: Invoice): void {
+    const docDefinition = this.createDocumentDefinition(invoice);
+    pdfMake.createPdf(docDefinition).open();
+  }
+
+  public download(invoice: Invoice): void {
+    const docDefinition = this.createDocumentDefinition(invoice);
+    pdfMake.createPdf(docDefinition).download(`facture-${invoice.invoiceNumber}.pdf`);
+  }
+
+  public async getBlob(invoice: Invoice): Promise<Blob> {
+    const docDefinition = this.createDocumentDefinition(invoice);
+    const pdfDocGenerator = pdfMake.createPdf(docDefinition);
+
+    return new Promise((resolve) => {
+      pdfDocGenerator.getBlob(blob => resolve(blob));
+    });
+  }
+
+  private createDocumentDefinition(invoice: Invoice): TDocumentDefinitions {
     const items = invoice.items.map(item => [
       item.type,
       item.description,
@@ -22,40 +42,56 @@ export class PdfGeneratorService {
     const tax = subtotal * invoice.items[0].taxRate;
     const total = subtotal + tax;
 
-    const docDefinition: any = {
+    return {
       content: [
         {
-          text: 'FACTURE N° ' + invoice.invoiceNumber,
-          alignment: 'right',
-          bold: true,
-          fontSize: 12,
-          margin: [0, 0, 0, 10]
+          columns: [
+            {
+              image: wtz_logo,
+              width: 100,
+              margin: [0, 0, 0, 10]
+            },
+            {
+              width: '80%',
+              text: 'FACTURE N° ' + invoice.invoiceNumber,
+              alignment: 'right',
+              style: 'strong',
+              fontSize: 12,
+              margin: [0, 0, 0, 10]
+            }
+          ]
         },
         {
           columns: [
-            [
-              {
-                image: wtz_logo,
-                width: 100,
-                margin: [0, 0, 0, 10]
-              },
-              {text: invoice.issuer.name, bold: true},
-              {text: invoice.issuer.address},
-              {text: 'Tel : ' + invoice.issuer.phone},
-              {text: 'Email : ' + invoice.issuer.email}
-            ],
-            [
-              {
-                stack: [
-                  {text: invoice.client.name, alignment: 'right', bold: true},
-                  ...invoice.client.address
-                    .split('\n')
-                    .map(line => ({text: line, alignment: 'right'}))
-                ],
-                margin: [0, 20, 0, 0]
-              }
-            ]
-
+            {
+              width: '50%',
+              stack: [
+                {text: invoice.issuer.name, style: 'strong'},
+                {text: invoice.issuer.address.street},
+                {text: invoice.issuer.address.zipCode + ' ' + invoice.issuer.address.city},
+                {text: invoice.issuer.address.country},
+                invoice.issuer.phone ? {text: [{text: 'Tel : '}, {text: invoice.issuer.phone}]} : '',
+                invoice.issuer.website
+                  ? {
+                    text: [
+                      {text: 'Site web : '},
+                      {text: invoice.issuer.website, link: invoice.issuer.website, color: 'blue'}
+                    ]
+                  }
+                  : '',
+                invoice.issuer.email ? {text: [{text: 'Email : '}, {text: invoice.issuer.email}]} : ''
+              ]
+            },
+            {
+              width: '50%',
+              stack: [
+                {text: invoice.client.name, alignment: 'right', style: 'strong'},
+                {text: invoice.client.address.street, alignment: 'right'},
+                {text: invoice.client.address.zipCode + ' ' + invoice.client.address.city, alignment: 'right'},
+                {text: invoice.client.address.country, alignment: 'right'}
+              ],
+              margin: [0, 0, 0, 0]
+            }
           ]
         },
         {text: ' ', margin: [0, 15]},
@@ -63,59 +99,30 @@ export class PdfGeneratorService {
           table: {
             widths: [100, 150],
             body: [
-              [
-                {text: 'Date d’émission :', fillColor: '#f5f5f5', bold: true},
-                invoice.issueDate
-              ],
-              [
-                {text: 'Délai de règlement :', fillColor: '#f5f5f5', bold: true},
-                `${invoice.deadline} jours fin de mois`
-              ],
-              [
-                {text: 'Échéance :', fillColor: '#f5f5f5', bold: true},
-                invoice.dueDate
-              ],
-              [
-                {text: 'Votre référence :', fillColor: '#f5f5f5', bold: true},
-                invoice.client.reference
-              ],
-              [
-                {text: 'Notre référence :', fillColor: '#f5f5f5', bold: true},
-                invoice.issuer.reference
-              ],
-              [
-                {text: 'N° Contrat :', fillColor: '#f5f5f5', bold: true},
-                invoice.contractNumber
-              ]
+              [{text: "Date d’émission :", fillColor: '#f5f5f5', style: 'strong'}, invoice.issueDate || ''],
+              [{
+                text: 'Délai de règlement :',
+                fillColor: '#f5f5f5',
+                style: 'strong'
+              }, `${invoice.deadline} jours${invoice.isEndOfMonth ? ' fin de mois' : ''}`],
+              [{text: 'Échéance :', fillColor: '#f5f5f5', style: 'strong'}, invoice.dueDate || ''],
+              [{text: 'Votre référence :', fillColor: '#f5f5f5', style: 'strong'}, invoice.client.reference || ''],
+              [{text: 'Notre référence :', fillColor: '#f5f5f5', style: 'strong'}, invoice.issuer.reference || ''],
+              [{text: 'N° Contrat :', fillColor: '#f5f5f5', style: 'strong'}, invoice.contractNumber || '']
             ]
           },
-          layout: {
-            hLineWidth: () => 0.5,
-            vLineWidth: () => 0.5,
-            hLineColor: () => '#cccccc',
-            vLineColor: () => '#cccccc'
-          },
+          layout: this.tableLayout(),
           margin: [0, 0, 0, 20]
         },
         {
           table: {
             widths: ['auto', '*'],
-            body: [
-              [
-                {text: 'Intervention de :', fillColor: '#f5f5f5', bold: true},
-                'Denis Wojtowicz'
-              ],
-            ]
+            body: [[{text: 'Intervention de :', fillColor: '#f5f5f5', style: 'strong'}, invoice.interventionBy]]
           },
-          layout: {
-            hLineWidth: () => 0.5,
-            vLineWidth: () => 0.5,
-            hLineColor: () => '#cccccc',
-            vLineColor: () => '#cccccc'
-          },
+          layout: this.tableLayout()
         },
         {text: ' ', margin: [0, 5]},
-        {text: invoice.note, italics: true},
+        {text: invoice.note || '', style: 'italic'},
         {text: ' ', margin: [0, 5]},
         {
           table: {
@@ -123,22 +130,17 @@ export class PdfGeneratorService {
             widths: ['*', '*', 'auto', 'auto', 'auto', 'auto'],
             body: [
               [
-                {text: 'Type', fillColor: '#f5f5f5', bold: true},
-                {text: 'Descriptif', fillColor: '#f5f5f5', bold: true},
-                {text: 'Période', fillColor: '#f5f5f5', bold: true},
-                {text: 'Quantité', fillColor: '#f5f5f5', bold: true},
-                {text: 'Prix Unit. HT', fillColor: '#f5f5f5', bold: true},
-                {text: 'Montant HT', fillColor: '#f5f5f5', bold: true}
+                {text: 'Type', fillColor: '#f5f5f5', style: 'strong'},
+                {text: 'Descriptif', fillColor: '#f5f5f5', style: 'strong'},
+                {text: 'Période', fillColor: '#f5f5f5', style: 'strong'},
+                {text: 'Quantité', fillColor: '#f5f5f5', style: 'strong'},
+                {text: 'Prix Unit. HT', fillColor: '#f5f5f5', style: 'strong'},
+                {text: 'Montant HT', fillColor: '#f5f5f5', style: 'strong'}
               ],
               ...items
             ]
           },
-          layout: {
-            hLineWidth: () => 0.5,
-            vLineWidth: () => 0.5,
-            hLineColor: () => '#cccccc',
-            vLineColor: () => '#cccccc'
-          },
+          layout: this.tableLayout()
         },
         {text: ' ', margin: [0, 10]},
         {
@@ -148,75 +150,102 @@ export class PdfGeneratorService {
               width: 'auto',
               table: {
                 body: [
-                  ['Montant total HT',
-                    {
-                      text: subtotal.toFixed(2) + ' €',
-                      alignment: 'right'
-                    }
+                  [
+                    'Montant total HT', {text: subtotal.toFixed(2) + ' €', alignment: 'right'}
                   ],
-                  [`Montant total TVA ${((invoice.items[0].taxRate * 100).toFixed(2))} %`,
+                  [
+                    `Montant total TVA ${((invoice.items[0].taxRate * 100).toFixed(2))} %`,
                     {
                       text: tax.toFixed(2) + ' €',
                       alignment: 'right'
                     }
                   ],
                   [
-                    {text: 'Montant total TTC', bold: true},
-                    {text: total.toFixed(2) + ' €', bold: true, alignment: 'right'}],
-                  ['Solde dû', '0.00 €']
+                    {
+                      text: 'Montant total TTC', style: 'strong'
+                    },
+                    {
+                      text: total.toFixed(2) + ' €',
+                      style: 'strong',
+                      alignment: 'right'
+                    }
+                  ],
+                  [
+                    'Solde dû',
+                    {
+                      text: isNaN(Number(invoice.duAmount)) ? '' : Number(invoice.duAmount).toFixed(2) + ' €',
+                      alignment: 'right'
+                    }
+                  ]
                 ]
               },
-              layout: {
-                hLineWidth: () => 0.5,
-                vLineWidth: () => 0.5,
-                hLineColor: () => '#cccccc',
-                vLineColor: () => '#cccccc'
-              },
+              layout: this.tableLayout()
             }
           ]
         },
-        {text: ' ', margin: [0, 20]},
+        {text: ' ', margin: [0, 10]},
         {
           table: {
             widths: ['auto', '*', 'auto', '*'],
             body: [
               [
-                {text: 'BANQUE :', fillColor: '#f5f5f5', bold: true},
+                {text: 'BANQUE :', fillColor: '#f5f5f5', style: 'strong'},
                 'Belfius',
-                {text: 'N° TVA Fournisseur :', fillColor: '#f5f5f5', bold: true},
-                'FR31903463503'
+                {text: 'N° TVA Fournisseur :', fillColor: '#f5f5f5', style: 'strong'},
+                invoice.issuer.vat
               ],
               [
-                {text: 'IBAN :', fillColor: '#f5f5f5', bold: true},
+                {text: 'IBAN :', fillColor: '#f5f5f5', style: 'strong'},
                 'BE46 0689 5580 9836',
-                {text: 'N° SIREN Client :', fillColor: '#f5f5f5', bold: true},
-                '534996695'
+                {text: 'N° SIREN Client :', fillColor: '#f5f5f5', style: 'strong'},
+                invoice.client.id
               ],
               [
-                {text: 'BIC :', fillColor: '#f5f5f5', bold: true},
+                {text: 'BIC :', fillColor: '#f5f5f5', style: 'strong'},
                 'GKCCBEBB',
-                {text: 'N° TVA Client :', fillColor: '#f5f5f5', bold: true},
-                ''
+                {text: 'N° TVA Client :', fillColor: '#f5f5f5', style: 'strong'},
+                invoice.client.vat ? invoice.client.vat : ''
               ]
             ]
           },
-          layout: {
-            hLineWidth: () => 0.5,
-            vLineWidth: () => 0.5,
-            hLineColor: () => '#cccccc',
-            vLineColor: () => '#cccccc'
-          },
+          layout: this.tableLayout()
         },
         {text: ' ', margin: [0, 10]},
-        {text: 'Nos factures sont réglables sans escompte'},
-        {text: 'Tout retard de paiement entraînerait la facturation de 40 € pour poursuite judiciaire'},
-        {text: 'ainsi que des intérêts de retard : Taux de base x 3'}
+        {text: invoice.terms || ''}
       ],
+      footer: {
+        margin: [40, 10],
+        style: 'footer',
+        stack: [
+          {
+            text: `Siège Social : ${invoice.issuer.address.street} - ${invoice.issuer.address.zipCode} ${invoice.issuer.address.city} - ${invoice.issuer.address.country}`,
+          },
+          {
+            text: `SRL au capital de 3 500 € • BCE : ${invoice.issuer.id}`,
+          }
+        ]
+      },
       defaultStyle: {
         fontSize: 10
+      },
+      styles: {
+        footer: { fontSize: 8, alignment: 'center' },
+        italic: {
+          italics: true
+        },
+        strong: {
+          bold: true
+        }
       }
     };
+  }
 
-    pdfMake.createPdf(docDefinition).download(`facture-${invoice.invoiceNumber}.pdf`);
+  private tableLayout() {
+    return {
+      hLineWidth: () => 0.5,
+      vLineWidth: () => 0.5,
+      hLineColor: () => '#cccccc',
+      vLineColor: () => '#cccccc'
+    };
   }
 }

@@ -1,6 +1,6 @@
 export interface Invoice {
   client: {
-    address: string;
+    address: Address;
     id: string;
     name: string;
     reference?: string;
@@ -8,12 +8,15 @@ export interface Invoice {
   };
   contractNumber: string;
   deadline: number;
+  duAmount: number;
   dueDate: string;
+  isEndOfMonth: boolean;
   interventionBy: string;
   invoiceNumber: string;
+  isPaid: boolean;
   issueDate: string;
   issuer: {
-    address: string;
+    address: Address;
     email?: string;
     id: string;
     name: string;
@@ -26,6 +29,13 @@ export interface Invoice {
   note?: string;
   terms?: string;
 
+}
+
+export interface Address {
+  street: string;
+  city: string;
+  country: string;
+  zipCode: string;
 }
 
 export interface InvoiceItem {

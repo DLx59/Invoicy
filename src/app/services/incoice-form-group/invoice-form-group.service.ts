@@ -1,6 +1,6 @@
 import {computed, Injectable, signal, Signal} from '@angular/core';
 import {FormArray, FormControl, FormGroup} from '@angular/forms';
-import {Invoice, InvoiceItem} from '../../models/invoice.model';
+import {InvoiceItem} from '../../models/invoice.model';
 
 @Injectable({
   providedIn: 'root'
@@ -68,7 +68,9 @@ export class InvoiceFormGroupService {
       clientVat: new FormControl<string>(''),
       contractNumber: new FormControl<string>('', {nonNullable: true}),
       deadline: new FormControl<number>(0, {nonNullable: true}),
-      dueDate: new FormControl<string>('', {nonNullable: true}),
+      isEndOfMonth: new FormControl<boolean>(false, {nonNullable: true}),
+      duAmount: new FormControl<number>(0, {nonNullable: true}),
+      dueDate: new FormControl<string>({value: '', disabled: true}, {nonNullable: true}),
       interventionBy: new FormControl<string>('', {nonNullable: true}),
       invoiceNumber: new FormControl<string>('', {nonNullable: true}),
       issueDate: new FormControl<string>('', {nonNullable: true}),
@@ -80,8 +82,10 @@ export class InvoiceFormGroupService {
       issuerReference: new FormControl<string>(''),
       issuerVAT: new FormControl<string>('', {nonNullable: true}),
       issuerWebsite: new FormControl<string>(''),
+      isPaid: new FormControl<boolean>(false),
       items: new FormArray<FormGroup>([this.createItemFormGroup()]),
       note: new FormControl<string>('', {nonNullable: true}),
+      terms: new FormControl<string>('', {nonNullable: true}),
     });
   }
 
