@@ -1,8 +1,6 @@
-import {provideRouter, Routes, withComponentInputBinding, withViewTransitions} from '@angular/router';
-import {InvoiceFormComponent} from './components/invoice-form/invoice-form.component';
-import {HomeComponent} from './components/home/home.component';
-import {bootstrapApplication} from '@angular/platform-browser';
-import {AppComponent} from './app.component';
+import {Routes} from '@angular/router';
+import {InvoiceFormComponent} from './features/invoice/components/invoice-form/invoice-form.component';
+import {HomeComponent} from './pages/home/home.component';
 
 export const routes: Routes = [
   {

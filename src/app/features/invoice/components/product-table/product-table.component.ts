@@ -6,7 +6,7 @@ import {InputText} from 'primeng/inputtext';
 import {CurrencyPipe, PercentPipe} from '@angular/common';
 import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
-import {InvoiceFormGroupService} from '../../../services/incoice-form-group/invoice-form-group.service';
+import {InvoiceFormGroupService} from '../../services/incoice-form-group/invoice-form-group.service';
 
 @Component({
   selector: 'app-product-table',

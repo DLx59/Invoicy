@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Invoice} from '../../models/invoice.model';
+import {Invoice} from '../../features/invoice/models/invoice.model';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import {wtz_logo} from './base64-logo';

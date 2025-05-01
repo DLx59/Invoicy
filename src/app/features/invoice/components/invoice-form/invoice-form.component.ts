@@ -1,6 +1,6 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
 import {Invoice} from '../../models/invoice.model';
-import {PdfGeneratorService} from '../../services/pdf-generator/pdf-generator.service';
+import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
 import {ReactiveFormsModule} from '@angular/forms';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
 import {CurrencyPipe, DatePipe} from '@angular/common';
@@ -10,7 +10,7 @@ import {FloatLabel} from "primeng/floatlabel";
 import {Button} from "primeng/button";
 import {Textarea} from "primeng/textarea";
 import {InputText} from "primeng/inputtext";
-import {ProductTableComponent} from "./product-table/product-table.component";
+import {ProductTableComponent} from "../product-table/product-table.component";
 import {Menu} from 'primeng/menu';
 import {MenuItem, MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
@@ -25,7 +25,7 @@ import {InputGroup} from 'primeng/inputgroup';
 import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {Checkbox, CheckboxChangeEvent} from 'primeng/checkbox';
 import {InputNumber} from 'primeng/inputnumber';
-import {PdfPreviewModalComponent} from '../pdf-preview-modal/pdf-preview-modal.component';
+import {PdfPreviewModalComponent} from '../../../../shared/components/pdf-preview-modal/pdf-preview-modal.component';
 
 @Component({
   selector: 'app-invoice-form',
