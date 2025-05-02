@@ -1,55 +1,64 @@
-export interface Invoice {
-  client: {
-    address: Address;
-    id: string;
-    name: string;
-    reference?: string;
-    vat?: string
-  };
-  contractNumber: string;
-  deadline: number;
-  dueAmount: number;
-  dueVat: number;
-  dueDate: string;
-  isEndOfMonth: boolean;
-  interventionBy: string;
-  invoiceNumber: string;
-  isIntracommunity: boolean;
-  isPaid: boolean;
-  issueDate: string;
-  issuer: {
-    address: Address;
-    email?: string;
-    id: string;
-    name: string;
-    phone?: string;
-    reference?: string;
-    vat: string
-    website?: string;
-  };
-  items: InvoiceItem[];
-  note?: string;
-  terms?: string;
-
-}
-
 export interface Address {
-  city: string;
-  country: string;
   street: string;
   zipCode: string;
+  city: string;
+  country: string;
+}
+
+export interface CompanyInfo {
+  id: string;
+  name: string;
+  address: Address;
+  vat: string;
+  reference?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+}
+
+export interface ClientInfo {
+  id: string;
+  name: string;
+  address: Address;
+  vat?: string;
+  reference?: string;
 }
 
 export interface InvoiceItem {
-  description: string;
   id: string;
+  type: string;
+  description: string;
   period: string;
   quantity: number;
+  unitPrice: number;
   taxRate: number;
   totalPriceHt?: number;
-  type: string
-  unitPrice: number;
 }
+
+export interface Invoice {
+  invoiceNumber: string;
+  issueDate: string;
+  deadline: number;
+  dueDate: string;
+  contractNumber: string;
+
+  isEndOfMonth: boolean;
+  isIntracommunity: boolean;
+  isPaid: boolean;
+
+  dueAmount: number;
+  dueVat: number;
+
+  interventionBy: string;
+
+  issuer: CompanyInfo;
+  client: ClientInfo;
+  items: InvoiceItem[];
+
+  note?: string;
+  terms?: string;
+}
+
 
 export interface Total {
   net: number;
