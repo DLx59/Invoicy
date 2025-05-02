@@ -1,47 +1,122 @@
 {
-  "name": "wtz-managment",
+  "name": "invoicy",
   "version": "0.0.1",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "angular:ng": "ng",
+    "angular:start": "ng serve",
+    "angular:build": "ng build --base-href ./ --output-path ./dist && sed -i 's@<base href=\"/\">@<base href=\"./\">@g' dist/browser/index.html",
+    "angular:watch": "ng build --watch --configuration development",
+    "angular:test": "ng test",
+    "electron:tsc": "tsc -p ./tsconfig.electron.json",
+    "electron:start": "npm run electron:tsc && electron .",
+    "electron:build": "npm run electron:tsc && electron-builder --win --linux --x64",
+    "electron:build:linux": "npm run electron:tsc && electron-builder --linux",
+    "electron:build:win": "npm run electron:tsc && electron-builder --win",
+    "start": "cross-env NODE_ENV=development npm-run-all --parallel angular:start electron:start",
+    "start:tools": "NODE_ENV=development DEV_TOOLS=true npm-run-all --parallel angular:start electron:start",
+    "start:prod": "npm run angular:build && NODE_ENV=production npm run electron:start",
+    "start:prod:tools": "npm run angular:build && NODE_ENV=production DEV_TOOLS=true npm run electron:start",
+    "build": "npm run angular:build && npm run electron:build",
+    "build:linux": "npm run angular:build && npm run electron:build:linux",
+    "build:win": "npm run angular:build && npm run electron:build:win"
   },
+  "main": "lib/app.js",
   "private": true,
   "dependencies": {
-    "@angular/common": "^19.2.0",
-    "@angular/compiler": "^19.2.0",
-    "@angular/core": "^19.2.0",
-    "@angular/forms": "^19.2.0",
-    "@angular/platform-browser": "^19.2.0",
-    "@angular/platform-browser-dynamic": "^19.2.0",
-    "@angular/router": "^19.2.0",
+    "@angular/animations": "^19.0.3",
+    "@angular/common": "^19.0.3",
+    "@angular/compiler": "^19.0.3",
+    "@angular/core": "^19.0.3",
+    "@angular/forms": "^19.0.3",
+    "@angular/platform-browser": "^19.0.3",
+    "@angular/platform-browser-dynamic": "^19.0.3",
+    "@angular/router": "^19.0.3",
+    "ngx-electronyzer": "^18.2.0",
+    "tailwindcss-primeui": "^0.6.1",
     "@primeng/themes": "^19.1.0",
     "ngx-extended-pdf-viewer": "^23.1.1",
     "pdfmake": "^0.2.18",
     "primeicons": "^7.0.0",
     "primeng": "^19.1.0",
-    "rxjs": "~7.8.0",
-    "tailwindcss-primeui": "^0.6.1",
-    "tslib": "^2.3.0",
+    "sqlite3": "5.1.7",
+    "rxjs": "~7.8.1",
+    "tslib": "^2.8.1",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^19.2.9",
-    "@angular/cli": "^19.2.9",
-    "@angular/compiler-cli": "^19.2.0",
-    "@types/jasmine": "~5.1.0",
+    "@angular-devkit/build-angular": "^19.0.4",
+    "@angular/cli": "^19.0.4",
+    "@angular/compiler-cli": "^19.0.3",
+    "@types/jasmine": "~5.1.5",
     "@types/pdfmake": "^0.2.11",
-    "autoprefixer": "^10.4.21",
-    "jasmine-core": "~5.6.0",
-    "karma": "~6.4.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "electron-debug": "3.2.0",
+    "electron-reloader": "1.2.3",
+    "jasmine-core": "~5.5.0",
+    "karma": "~6.4.4",
     "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage": "~2.2.0",
+    "karma-coverage": "~2.2.1",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "npm-run-all": "^4.1.5",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "~5.7.2"
+    "typescript": "~5.6.3"
+  },
+  "build": {
+    "appId": "fr.dw.invoicy",
+    "productName": "Invoicy",
+    "copyright": "Copyright (c) 2025 Denis Wojtowicz",
+    "files": [
+      "dist/browser/**/*",
+      "node_modules/**/*",
+      "public/**/*",
+      "lib/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "public"
+    },
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "icon": "public/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/favicon.ico",
+      "uninstallerIcon": "public/favicon.ico",
+      "installerHeaderIcon": "public/favicon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Invoicy",
+      "differentialPackage": false
+    },
+    "portable": {
+      "artifactName": "${productName}-portable-${version}.${ext}"
+    },
+    "extraResources": [
+      {
+        "from": "public",
+        "to": "public",
+        "filter": [
+          "**/*.ico"
+        ]
+      }
+    ]
   }
 }

@@ -1,11 +1,11 @@
 import {Component, inject, input, InputSignal, signal, WritableSignal} from '@angular/core';
 import {Button} from "primeng/button";
 import {CurrencyPipe} from "@angular/common";
-import {PdfPreviewModalComponent} from "../../../../shared/components/pdf-preview-modal/pdf-preview-modal.component";
 import {Invoice, Total} from '../../models/invoice.model';
 import {InvoiceFormGroupService} from '../../services/incoice-form-group/invoice-form-group.service';
-import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
+import {PdfGeneratorService} from "../../../../shared/pdf/pdf-generator.service";
+import {PdfPreviewModalComponent} from "../../../../shared/components/pdf-preview-modal/pdf-preview-modal.component";
 
 @Component({
   selector: 'app-summary',

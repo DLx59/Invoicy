@@ -1,12 +1,12 @@
 import {ApplicationConfig, LOCALE_ID, provideZoneChangeDetection} from '@angular/core';
 import {provideRouter, withComponentInputBinding, withViewTransitions} from '@angular/router';
 import {routes} from './app.routes';
-import {providePrimeNG} from 'primeng/config';
-import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
 import Aura from '@primeng/themes/aura';
-import {definePreset} from '@primeng/themes';
-import localeFr from '@angular/common/locales/fr';
 import {registerLocaleData} from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import {definePreset} from "@primeng/themes";
+import {provideAnimationsAsync} from "@angular/platform-browser/animations/async";
+import {providePrimeNG} from "primeng/config";
 
 registerLocaleData(localeFr);
 

@@ -1,0 +1,12 @@
+{
+  "name": "angular-electron",
+  "description": "Angular Electron",
+  "author": {
+    "name": "Denis Wojtowicz"
+  },
+  "version": "14.0.1",
+  "main": "app.ts",
+  "private": true,
+  "dependencies": {
+  }
+}
