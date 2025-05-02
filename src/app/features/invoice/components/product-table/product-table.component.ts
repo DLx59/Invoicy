@@ -1,4 +1,4 @@
-import {Component, inject, input, Signal} from '@angular/core';
+import {Component, inject, input, InputSignal, Signal} from '@angular/core';
 import {FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {TableModule} from 'primeng/table';
 import {FloatLabel} from 'primeng/floatlabel';
@@ -7,6 +7,7 @@ import {CurrencyPipe, PercentPipe} from '@angular/common';
 import {Button} from 'primeng/button';
 import {Ripple} from 'primeng/ripple';
 import {InvoiceFormGroupService} from '../../services/incoice-form-group/invoice-form-group.service';
+import {Invoice} from '../../models/invoice.model';
 
 @Component({
   selector: 'app-product-table',
@@ -75,7 +76,6 @@ export class ProductTableComponent {
       });
 
       this.invoiceFormGroupService.clearOriginalItem(index);
-
     }
   }
 }

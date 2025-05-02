@@ -8,11 +8,13 @@ export interface Invoice {
   };
   contractNumber: string;
   deadline: number;
-  duAmount: number;
+  dueAmount: number;
+  dueVat: number;
   dueDate: string;
   isEndOfMonth: boolean;
   interventionBy: string;
   invoiceNumber: string;
+  isIntracommunity: boolean;
   isPaid: boolean;
   issueDate: string;
   issuer: {

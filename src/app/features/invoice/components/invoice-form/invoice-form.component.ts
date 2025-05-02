@@ -1,6 +1,6 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
 import {Invoice, Total} from '../../models/invoice.model';
-import {FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
 import {DatePipe} from '@angular/common';
 import {InvoiceFormGroupService} from '../../services/incoice-form-group/invoice-form-group.service';
@@ -53,11 +53,29 @@ export class InvoiceFormComponent {
       label: 'Aperçu'
     }
   ];
-  public totalVat: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => {
-    const totalHt: number = item.totalPriceHt ?? 0;
-    const taxRate: number = item.taxRate ?? 0;
-    return acc + totalHt * taxRate;
-  }, 0));
+  public totalVat: Signal<number> = computed(() => {
+    const formArray = this.formGroup.get('items') as FormArray;
+    if (this.invoice().isIntracommunity) {
+      formArray.controls.forEach(control => {
+        const taxRateControl = control.get('taxRate');
+        taxRateControl?.setValue(0);
+        taxRateControl?.disable();
+      });
+      return 0;
+    }
+    else {
+      formArray.controls.forEach(control => {
+        control.get('taxRate')?.enable({emitEvent: false});
+      });
+    }
+    console.warn(this.invoice())
+    return this.invoice().items.reduce((acc, item) => {
+      const totalHt: number = item.totalPriceHt ?? 0;
+      const taxRate: number = item.taxRate ?? 0;
+      return acc + totalHt * taxRate;
+    }, 0);
+  });
+
   public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
   public totalAmount: Signal<number> = computed(() => this.totalNet() + this.totalVat());
   public total: Signal<Total> = computed(() => ({
@@ -105,6 +123,7 @@ export class InvoiceFormComponent {
           interventionBy: current.interventionBy,
           invoiceNumber: current.invoiceNumber,
           isPaid: current.isPaid,
+          isIntracommunity: current.isIntracommunity,
           issueDate: current.issueDate,
           issuerCity: current.issuer.address.city,
           issuerCountry: current.issuer.address.country,
@@ -126,14 +145,14 @@ export class InvoiceFormComponent {
 
     effect(() => {
       const isPaid = this.formGroup.get('isPaid')?.value;
-      const currentValue = this.formGroup.get('duAmount')?.value;
+      const currentValue = this.formGroup.get('dueAmount')?.value;
       const expectedValue = isPaid ? 0 : this.total().amount;
 
       if (currentValue !== expectedValue) {
-        this.formGroup.get('duAmount')?.setValue(expectedValue, {emitEvent: false});
+        this.formGroup.get('dueAmount')?.setValue(expectedValue, {emitEvent: false});
         this.invoice.update((invoice) => ({
           ...invoice,
-          duAmount: expectedValue
+          dueAmount: expectedValue
         }))
       }
     });
@@ -184,9 +203,11 @@ export class InvoiceFormComponent {
       invoiceNumber: '',
       issueDate: '',
       deadline: 0,
-      duAmount: 0,
+      dueAmount: 0,
+      dueVat: 0,
       dueDate: '',
       isEndOfMonth: false,
+      isIntracommunity: false,
       isPaid: false,
       contractNumber: '',
       client: {
@@ -262,10 +283,12 @@ export class InvoiceFormComponent {
       invoiceNumber: '',
       issueDate: this.datePipe.transform(new Date(), 'dd/MM/yyyy') ?? '',
       deadline: initialDeadline,
-      duAmount: 0,
+      dueAmount: 0,
+      dueVat: 0,
       dueDate: this.calculateDueDate(initialIssueDate, initialDeadline, initialIsEndOfMonth),
       isEndOfMonth: false,
       contractNumber: 'CST.2024.08.003',
+      isIntracommunity: false,
       isPaid: false,
       client: {
         id: '534998695',
@@ -314,12 +337,14 @@ export class InvoiceFormComponent {
     const updated = {...this.invoice()};
     updated.contractNumber = form.contractNumber ?? '';
     updated.deadline = form.deadline ?? '';
-    updated.duAmount = form.duAmount ?? '';
+    updated.dueAmount = form.dueAmount ?? '';
+    updated.dueVat = form.dueVat ?? '';
     updated.dueDate = this.calculateDueDate(updated.issueDate, updated.deadline, updated.isEndOfMonth);
     updated.interventionBy = form.interventionBy ?? '';
     updated.invoiceNumber = form.invoiceNumber ?? '';
     updated.isEndOfMonth = form.isEndOfMonth ?? false;
     updated.isPaid = form.isPaid ?? false;
+    updated.isIntracommunity = form.isIntracommunity ?? false;
     updated.issueDate = form.issueDate ?? '';
     updated.note = form.note ?? '';
     updated.terms = form.terms ?? '';
@@ -368,5 +393,4 @@ export class InvoiceFormComponent {
 
     this.invoice.set(updated);
   }
-
 }

@@ -6,16 +6,20 @@
   <div class="mt-4 gap-3">
     <p-inputgroup>
       <p-floatlabel class="w-33 sm:w-5/12 md:w-4/12 lg:w-3/12" variant="on">
-        <p-inputNumber class="w-33" [formControlName]="'duAmount'" id="duAmount" mode="currency"
-                       inputId="duAmount" currency="EUR"/>
-        <label for="duAmount">Solde dû/Déjà réglé</label>
+        <p-inputNumber class="w-33" [formControlName]="'dueAmount'" id="dueAmount" mode="currency"
+                       inputId="dueAmount" currency="EUR"/>
+        <label for="dueAmount">Solde dû/Déjà réglé</label>
       </p-floatlabel>
       <p-inputgroup-addon>
         <p-checkbox (onChange)="isAllreadyPaid($event)" [formControlName]="'isPaid'"
                     [binary]="true"></p-checkbox>
       </p-inputgroup-addon>
     </p-inputgroup>
-  </div>
 
+    <div class="flex items-center mt-4">
+      <p-checkbox id="isIntracommunity" inputId="isIntracommunity" name="isIntracommunity" [formControlName]="'isIntracommunity'" [binary]="true" />
+      <label for="isIntracommunity" class="ml-2">Facture intracommunautaire</label>
+    </div>
+  </div>
   <app-summary [formGroup]="formGroup" [invoice]="invoice()" [total]="total()"></app-summary>
 </div>

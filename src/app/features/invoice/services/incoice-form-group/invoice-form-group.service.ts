@@ -36,7 +36,6 @@ export class InvoiceFormGroupService {
     }
   }
 
-
   public initItems(items: InvoiceItem[]): void {
     const itemsArray = this.getItemsArray();
     itemsArray().clear();
@@ -71,12 +70,14 @@ export class InvoiceFormGroupService {
       clientZipCode: new FormControl<string>('', {nonNullable: true}),
       contractNumber: new FormControl<string>('', {nonNullable: true}),
       deadline: new FormControl<number>(0, {nonNullable: true}),
-      duAmount: new FormControl<number>(0, {nonNullable: true}),
+      dueAmount: new FormControl<number>(0, {nonNullable: true}),
+      dueVat: new FormControl<number>(0, {nonNullable: true}),
       dueDate: new FormControl<string>({value: '', disabled: true}, {nonNullable: true}),
       interventionBy: new FormControl<string>('', {nonNullable: true}),
       invoiceNumber: new FormControl<string>('', {nonNullable: true}),
       isEndOfMonth: new FormControl<boolean>(false, {nonNullable: true}),
       isPaid: new FormControl<boolean>(false),
+      isIntracommunity: new FormControl<boolean>(false),
       issueDate: new FormControl<string>('', {nonNullable: true}),
       issuerCity: new FormControl<string>('', {nonNullable: true}),
       issuerCountry: new FormControl<string>('', {nonNullable: true}),

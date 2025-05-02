@@ -23,24 +23,22 @@ export class PdfGeneratorService {
     const docDefinition = this.createDocumentDefinition(invoice);
     const pdfDocGenerator = pdfMake.createPdf(docDefinition);
 
-    return new Promise((resolve) => {
-      pdfDocGenerator.getBlob(blob => resolve(blob));
-    });
+    return new Promise((resolve) => pdfDocGenerator.getBlob((blob) => resolve(blob)));
   }
 
   private createDocumentDefinition(invoice: Invoice): TDocumentDefinitions {
-    const items = invoice.items.map(item => [
+    const items = invoice.items.map((item) => [
       item.type,
       item.description,
       item.period,
       item.quantity,
-      item.unitPrice.toFixed(2),
-      item.totalPriceHt + ' €'
+      this.safe(item.unitPrice),
+      this.safe(item.totalPriceHt || 0)
     ]);
 
-    const subtotal = invoice.items.reduce((sum, item) => sum + item.totalPriceHt!, 0);
-    const tax = subtotal * invoice.items[0].taxRate;
-    const total = subtotal + tax;
+    const subtotal = invoice.items.reduce((sum, item) => sum + (item.totalPriceHt || 0), 0);
+    const taxDetails = this.calculateTaxDetails(invoice);
+    const total = subtotal + taxDetails.totalTax;
 
     return {
       content: [
@@ -99,16 +97,35 @@ export class PdfGeneratorService {
           table: {
             widths: [100, 150],
             body: [
-              [{text: "Date d’émission :", fillColor: '#f5f5f5', style: 'strong'}, invoice.issueDate || ''],
-              [{
-                text: 'Délai de règlement :',
-                fillColor: '#f5f5f5',
-                style: 'strong'
-              }, `${invoice.deadline} jours${invoice.isEndOfMonth ? ' fin de mois' : ''}`],
-              [{text: 'Échéance :', fillColor: '#f5f5f5', style: 'strong'}, invoice.dueDate || ''],
-              [{text: 'Votre référence :', fillColor: '#f5f5f5', style: 'strong'}, invoice.client.reference || ''],
-              [{text: 'Notre référence :', fillColor: '#f5f5f5', style: 'strong'}, invoice.issuer.reference || ''],
-              [{text: 'N° Contrat :', fillColor: '#f5f5f5', style: 'strong'}, invoice.contractNumber || '']
+              [
+                {
+                  text: "Date d’émission :", fillColor: '#f5f5f5', style: 'strong'
+                },
+                invoice.issueDate || ''
+              ],
+              [
+                {
+                  text: 'Délai de règlement :', fillColor: '#f5f5f5', style: 'strong'
+                },
+                `${invoice.deadline} jours${invoice.isEndOfMonth ? ' fin de mois' : ''}`,
+              ],
+              [
+                {
+                  text: 'Échéance :', fillColor: '#f5f5f5', style: 'strong'
+                },
+                invoice.dueDate || ''],
+              [
+                {text: 'Votre référence :', fillColor: '#f5f5f5', style: 'strong'},
+                invoice.client.reference || ''
+              ],
+              [
+                {text: 'Notre référence :', fillColor: '#f5f5f5', style: 'strong'},
+                invoice.issuer.reference || ''
+              ],
+              [
+                {text: 'N° Contrat :', fillColor: '#f5f5f5', style: 'strong'},
+                invoice.contractNumber || ''
+              ]
             ]
           },
           layout: this.tableLayout(),
@@ -151,21 +168,23 @@ export class PdfGeneratorService {
               table: {
                 body: [
                   [
-                    'Montant total HT', {text: subtotal.toFixed(2) + ' €', alignment: 'right'}
+                    'Montant total HT', {text: this.safe(subtotal), alignment: 'right'}
                   ],
+                  ...(invoice.isIntracommunity
+                    ? []
+                    : [
+                      [
+                        `Montant total TVA ${this.formatTaxRates(taxDetails)}`,
+                        {text: this.safe(taxDetails.totalTax), alignment: 'right'},
+                      ]
+                    ]),
                   [
-                    `Montant total TVA ${((invoice.items[0].taxRate * 100).toFixed(2))} %`,
                     {
-                      text: tax.toFixed(2) + ' €',
-                      alignment: 'right'
-                    }
-                  ],
-                  [
-                    {
-                      text: 'Montant total TTC', style: 'strong'
+                      text: `Montant total ${invoice.isIntracommunity ? 'de la facture' : 'TTC'}`,
+                      style: 'strong'
                     },
                     {
-                      text: total.toFixed(2) + ' €',
+                      text: this.safe(total),
                       style: 'strong',
                       alignment: 'right'
                     }
@@ -173,7 +192,7 @@ export class PdfGeneratorService {
                   [
                     'Solde dû',
                     {
-                      text: isNaN(Number(invoice.duAmount)) ? '' : Number(invoice.duAmount).toFixed(2) + ' €',
+                      text: this.safe(invoice.dueAmount),
                       alignment: 'right'
                     }
                   ]
@@ -218,10 +237,10 @@ export class PdfGeneratorService {
         style: 'footer',
         stack: [
           {
-            text: `Siège Social : ${invoice.issuer.address.street} - ${invoice.issuer.address.zipCode} ${invoice.issuer.address.city} - ${invoice.issuer.address.country}`,
+            text: `Siège Social : ${invoice.issuer.address.street} - ${invoice.issuer.address.zipCode} ${invoice.issuer.address.city} - ${invoice.issuer.address.country}`
           },
           {
-            text: `SRL au capital de 3 500 € • BCE : ${invoice.issuer.id}`,
+            text: `SRL au capital de 3 500 € • BCE : ${invoice.issuer.id}`
           }
         ]
       },
@@ -238,6 +257,29 @@ export class PdfGeneratorService {
         }
       }
     };
+  }
+
+  private calculateTaxDetails(invoice: Invoice): { totalTax: number; rates: Record<number, number> } {
+    return invoice.items.reduce(
+      (acc, item) => {
+        const rate = item.taxRate || 0;
+        const tax = (item.totalPriceHt || 0) * rate;
+        acc.rates[rate] = (acc.rates[rate] || 0) + tax;
+        acc.totalTax += tax;
+        return acc;
+      },
+      {totalTax: 0, rates: {} as Record<number, number>}
+    );
+  }
+
+  private formatTaxRates(taxDetails: { rates: Record<number, number> }): string {
+    return Object.keys(taxDetails.rates)
+      .map((rate) => `${(parseFloat(rate) * 100).toFixed(2)}%`)
+      .join(' + ');
+  }
+
+  private safe(value: number): string {
+    return (isNaN(value) ? 0 : value).toFixed(2) + ' €';
   }
 
   private tableLayout() {

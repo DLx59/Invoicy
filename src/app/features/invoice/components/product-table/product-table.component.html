@@ -9,7 +9,10 @@
         <th>Quantité</th>
         <th>Prix Unit. HT</th>
         <th>Montant HT</th>
-        <th>TVA (%)</th>
+
+        @if (!invoice().isIntracommunity) {
+          <th>TVA (%)</th>
+        }
         <th class="!text-center">Actions</th>
       </tr>
     </ng-template>
@@ -104,21 +107,22 @@
           </p-cellEditor>
         </td>
 
-        <td>
-          <p-cellEditor>
-            <ng-template #input>
-              <p-floatlabel class="w-24" variant="on">
-                <input class="w-24" pInputText type="number" [formControl]="row.get('taxRate')"
-                       id="taxRate-{{ri}}"/>
-                <label for="taxRate-{{ri}}">TVA (%)</label>
-              </p-floatlabel>
-            </ng-template>
-            <ng-template #output>
-              {{ row.get('taxRate').value | percent : '1.0-2' }}
-            </ng-template>
-          </p-cellEditor>
-        </td>
-
+        @if (!invoice().isIntracommunity) {
+          <td>
+            <p-cellEditor>
+              <ng-template #input>
+                <p-floatlabel class="w-24" variant="on">
+                  <input class="w-24" pInputText type="number" [formControl]="row.get('taxRate')"
+                         id="taxRate-{{ri}}"/>
+                  <label for="taxRate-{{ri}}">TVA (%)</label>
+                </p-floatlabel>
+              </ng-template>
+              <ng-template #output>
+                {{ row.get('taxRate').value | percent : '1.0-2' }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+        }
         <td>
           <div class="flex items-center justify-center gap-2">
             <td>
