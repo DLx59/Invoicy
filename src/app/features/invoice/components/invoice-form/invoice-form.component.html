@@ -30,10 +30,77 @@
       }
     </form>
   </div>
-  <div class="flex flex-row justify-end items-end gap-3 p-5">
-    <p-button (click)="prevStep()" [disabled]="menuActive() === 0" variant="outlined" severity="primary"
-              [label]="'Précédent'"/>
-    <p-button (click)="nextStep()" [disabled]="menuActive() === items.length - 1" variant="outlined" severity="primary"
-              [label]="'Suivant'"/>
+  <div class="flex flex-row gap-3">
+    <div class="flex flex-col w-full p-5">
+      @if (menuActive() === 0) {
+        <span>{{ invoice().issuer.name }}</span>
+        <span>{{ invoice().issuer.address.street }}</span>
+        <span>{{ invoice().issuer.address.zipCode }} {{ invoice().issuer.address.city }}</span>
+        <span>{{ invoice().issuer.address.country }}</span>
+      }
+      @if (menuActive() === 1) {
+        <span>{{ invoice().client.name }}</span>
+        <span>{{ invoice().client.address.street }}</span>
+        <span>{{ invoice().client.address.zipCode }} {{ invoice().issuer.address.city }}</span>
+        <span>{{ invoice().client.address.country }}</span>
+      }
+      @if (menuActive() === 2) {
+        <table class="custom-table contract-information mt-5 sm:w-5/12 md:w-6/12">
+          <tr>
+            <td class="header">Date d'émission :</td>
+            <td>{{ invoice().issueDate }}</td>
+          </tr>
+          <tr>
+            <td class="header">Délai de règlement :</td>
+            <td>{{ invoice().deadline }} jours {{ invoice().isEndOfMonth ? 'fin du mois' : '' }}</td>
+          </tr>
+          <tr>
+            <td class="header">Échéance :</td>
+            <td>{{ invoice().dueDate }}</td>
+          </tr>
+          <tr>
+            <td class="header">Votre référence :</td>
+            <td>{{ invoice().client.reference || '' }}</td>
+          </tr>
+          <tr>
+            <td class="header">Notre référence :</td>
+            <td>{{ invoice().issuer.reference || '' }}</td>
+          </tr>
+          <tr>
+            <td class="header">N° Contrat :</td>
+            <td>{{ invoice().contractNumber || '' }}</td>
+          </tr>
+        </table>
+      }
+      @if (menuActive() === 0 || menuActive() === 1) {
+        <table class="custom-table financial-information mt-5 sm:w-5/12 md:w-8/12">
+          <tr>
+            <td class="header">BANQUE :</td>
+            <td>Belfius</td>
+            <td class="header">N° TVA Fournisseur :</td>
+            <td>{{ invoice().issuer.vat }}</td>
+          </tr>
+          <tr>
+            <td class="header">IBAN :</td>
+            <td>BE46 0689 5580 9836</td>
+            <td class="header">N° SIREN Client :</td>
+            <td>{{ invoice().client.id }}</td>
+          </tr>
+          <tr>
+            <td class="header">BIC :</td>
+            <td>GKCCBEBB</td>
+            <td class="header">N° TVA Client :</td>
+            <td>{{ invoice().client.vat || '' }}</td>
+          </tr>
+        </table>
+      }
+    </div>
+    <div class="sm:w-7/12 md:w-4/12 flex justify-end gap-4 mt-5">
+      <p-button (click)="prevStep()" [disabled]="menuActive() === 0" variant="outlined" severity="primary"
+                [label]="'Précédent'"/>
+      <p-button (click)="nextStep()" [disabled]="menuActive() === items.length - 1" variant="outlined"
+                severity="primary"
+                [label]="'Suivant'"/>
+    </div>
   </div>
 </div>

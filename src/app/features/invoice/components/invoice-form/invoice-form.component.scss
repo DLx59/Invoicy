@@ -1,0 +1,35 @@
+.invoice-form-component {
+  .custom-table {
+    tr {
+      td {
+        border: 1px solid dimgray;
+
+        &.header {
+          color: black;
+          background-color: gray;
+          align-content: start;
+        }
+      }
+    }
+
+    &.financial-information {
+      td {
+        padding: 5px 10px 5px 5px;
+
+        &.header {
+          min-width: 150px;
+        }
+      }
+    }
+
+    &.contract-information {
+      td {
+        padding: 5px;
+
+        &.header {
+          min-width: 180px;
+        }
+      }
+    }
+  }
+}
