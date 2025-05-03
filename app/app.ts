@@ -3,13 +3,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sqlite3 from 'sqlite3';
 import { join } from 'path';
+import {ElectronService} from "./services/electron.service";
 
 let win: BrowserWindow | null = null;
 let db: sqlite3.Database;
-
 const args = process.argv.slice(1);
 const serve = args.some(val => val === '--serve');
-
 function createWindow(): BrowserWindow {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
   const windowWidth = width * 0.75;
@@ -32,7 +31,6 @@ function createWindow(): BrowserWindow {
   if (serve || (process.env['NODE_ENV'] || '').startsWith('dev')) {
     const debug = require('electron-debug');
     debug();
-
     require('electron-reloader')(module);
     win.loadURL('http://localhost:4200');
     win.webContents.openDevTools();
@@ -63,10 +61,10 @@ function createWindow(): BrowserWindow {
 
   return win;
 }
-
 try {
   app.whenReady().then(() => {
-    db = new sqlite3.Database(path.join(__dirname, 'sqlite.db'), (err) => {
+    // Open Sqlite Database
+    db = new sqlite3.Database(path.join(__dirname, 'invoicy.db'), (err) => {
       if (err) {
         console.error('Erreur lors de l\'ouverture de la base de données:', err);
       } else {
@@ -74,6 +72,7 @@ try {
       }
     });
 
+    // Gérer les requêtes IPC du processus de rendu
     ipcMain.handle('executeQuery', async (event, query: string, params: any[]) => {
       return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
@@ -85,8 +84,11 @@ try {
         });
       });
     });
+  });
 
-    setTimeout(createWindow, 400);
+  app.on('ready', async () => {
+    ElectronService.instance;
+    setTimeout(createWindow, 400)
   });
 
   app.on('window-all-closed', () => {
@@ -100,7 +102,6 @@ try {
       createWindow();
     }
   });
-
 } catch (e) {
   console.error('Erreur lors du démarrage de l\'application :', e);
 }

@@ -14,6 +14,7 @@ import {ProductComponent} from '../product/product.component';
 import {Button} from 'primeng/button';
 import {PdfPreviewComponent} from '../../../../shared/components/pdf-preview/pdf-preview.component';
 import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
+import {InvoiceDataService} from "../../services/invoice-data/invoice-data.service";
 
 @Component({
   selector: 'app-invoice-form',
@@ -33,7 +34,6 @@ import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service'
   providers: [DatePipe, MessageService],
 })
 export class InvoiceFormComponent {
-  public invoice!: WritableSignal<Invoice>;
   public autoResizeEnabled = signal(false);
   public menuActive: WritableSignal<number> = signal(0);
   public items: MenuItem[] = [
@@ -53,29 +53,6 @@ export class InvoiceFormComponent {
       label: 'Aperçu'
     }
   ];
-  public totalVat: Signal<number> = computed(() => {
-    const formArray = this.formGroup.get('items') as FormArray;
-    if (this.invoice().isIntracommunity) {
-      formArray.controls.forEach(control => {
-        const taxRateControl = control.get('taxRate');
-        taxRateControl?.setValue(0);
-        taxRateControl?.disable();
-      });
-      return 0;
-    }
-    else {
-      formArray.controls.forEach(control => {
-        control.get('taxRate')?.enable({emitEvent: false});
-      });
-    }
-    console.warn(this.invoice())
-    return this.invoice().items.reduce((acc, item) => {
-      const totalHt: number = item.totalPriceHt ?? 0;
-      const taxRate: number = item.taxRate ?? 0;
-      return acc + totalHt * taxRate;
-    }, 0);
-  });
-
   public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
   public totalAmount: Signal<number> = computed(() => this.totalNet() + this.totalVat());
   public total: Signal<Total> = computed(() => ({
@@ -87,12 +64,33 @@ export class InvoiceFormComponent {
   public canDownloadPdf: WritableSignal<boolean> = signal(false);
   private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
   public formGroup: FormGroup = this.invoiceFormGroupService.getFormGroup();
+  public totalVat: Signal<number> = computed(() => {
+    const formArray = this.formGroup.get('items') as FormArray;
+    if (this.invoice().isIntracommunity) {
+      formArray.controls.forEach(control => {
+        const taxRateControl = control.get('taxRate');
+        taxRateControl?.setValue(0);
+        taxRateControl?.disable();
+      });
+      return 0;
+    } else {
+      formArray.controls.forEach(control => {
+        control.get('taxRate')?.enable({emitEvent: false});
+      });
+    }
+    return this.invoice().items.reduce((acc, item) => {
+      const totalHt: number = item.totalPriceHt ?? 0;
+      const taxRate: number = item.taxRate ?? 0;
+      return acc + totalHt * taxRate;
+    }, 0);
+  });
   private readonly datePipe: DatePipe = inject(DatePipe);
   private readonly invoiceNumberService: InvoiceNumberService = inject(InvoiceNumberService);
   private readonly pdfGeneratorService: PdfGeneratorService = inject(PdfGeneratorService);
+  private readonly invoiceDataService: InvoiceDataService = inject(InvoiceDataService);
+  public invoice: WritableSignal<Invoice> = signal<Invoice>(this.invoiceDataService.getInvoices()[0]);
 
   constructor() {
-    this.initDefaultInvoice();
     this.invoiceFormGroupService.initItems(this.invoice().items);
 
     if (!this.invoice().invoiceNumber) {
@@ -142,7 +140,6 @@ export class InvoiceFormComponent {
         this.autoResizeEnabled.set(true);
       });
     });
-
     effect(() => {
       const isPaid = this.formGroup.get('isPaid')?.value;
       const currentValue = this.formGroup.get('dueAmount')?.value;
@@ -253,8 +250,6 @@ export class InvoiceFormComponent {
 
     this.invoiceFormGroupService.resetFormGroup();
     this.invoiceFormGroupService.initItems(this.invoice().items);
-    // this.issuerInputState.set(defaultIssuerInputState);
-    // this.clientInputState.set(defaultClientInputState);
   }
 
   private calculateDueDate(issueDate: string, deadline: number, isEndOfMonth: boolean): string {
@@ -272,65 +267,6 @@ export class InvoiceFormComponent {
     date.setUTCDate(date.getUTCDate() + deadline);
 
     return this.datePipe.transform(date, 'dd/MM/yyyy') ?? '';
-  }
-
-  private initDefaultInvoice(): void {
-    const initialIssueDate = this.datePipe.transform(new Date(), 'dd/MM/yyyy') ?? '';
-    const initialDeadline = 30;
-    const initialIsEndOfMonth = false;
-
-    this.invoice = signal<Invoice>({
-      invoiceNumber: '',
-      issueDate: this.datePipe.transform(new Date(), 'dd/MM/yyyy') ?? '',
-      deadline: initialDeadline,
-      dueAmount: 0,
-      dueVat: 0,
-      dueDate: this.calculateDueDate(initialIssueDate, initialDeadline, initialIsEndOfMonth),
-      isEndOfMonth: false,
-      contractNumber: 'CST.2024.08.003',
-      isIntracommunity: false,
-      isPaid: false,
-      client: {
-        id: '534998695',
-        name: 'Asitix',
-        address: {
-          city: 'Wasquehal',
-          country: 'France',
-          street: '1 Allée de la marque',
-          zipCode: '59290'
-        },
-        reference: 'Condition particulière Annexe 1 du contrat',
-        vat: 'FR1234567890'
-      },
-      items: [{
-        id: crypto.randomUUID(),
-        type: 'Prestation',
-        description: '21 jours',
-        period: 'Mars 2025',
-        quantity: 20,
-        unitPrice: 500,
-        totalPriceHt: 10000,
-        taxRate: 0.21
-      }],
-      issuer: {
-        id: '1022.858.268',
-        name: 'WTZ SRL',
-        address: {
-          city: 'Bruxelles',
-          country: 'Belgique',
-          street: ' 206 Chaussée de Roodebeek',
-          zipCode: '1200'
-        },
-        phone: '+33 647 10 97 00',
-        reference: '',
-        website: 'site-web.com',
-        email: 'email@wtz.com',
-        vat: 'BE1022858268'
-      },
-      interventionBy: 'Denis Wojtowicz',
-      note: 'Développement Front End Angular\nAstreinte Novembre',
-      terms: 'Nos factures sont réglables sans escompte\nTout retard de paiement entraînerait la facturation de 40 € pour poursuite judiciaire\nainsi que des intérêts de retard : Taux de base x 3'
-    });
   }
 
   private updateInvoiceFromForm(form: any): void {
