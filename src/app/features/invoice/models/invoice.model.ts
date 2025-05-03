@@ -55,6 +55,7 @@ export interface Invoice {
   client: ClientInfo;
   items: InvoiceItem[];
 
+  status: InvoiceStatus
   note?: string;
   terms?: string;
 }
@@ -64,4 +65,11 @@ export interface Total {
   net: number;
   vat: number;
   amount: number;
+}
+
+export enum InvoiceStatus {
+  DRAFT = 'Brouillon',
+  PENDING = 'En attente',
+  PAID = 'Payé',
+  CANCELLED = 'Annulé'
 }

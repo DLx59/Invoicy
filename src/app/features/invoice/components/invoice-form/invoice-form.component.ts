@@ -1,5 +1,5 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
-import {Invoice, Total} from '../../models/invoice.model';
+import {Invoice, InvoiceStatus, Total} from '../../models/invoice.model';
 import {FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
 import {DatePipe} from '@angular/common';
@@ -218,6 +218,7 @@ export class InvoiceFormComponent {
         },
         reference: ''
       },
+      status: InvoiceStatus.DRAFT,
       items: [{
         id: crypto.randomUUID(),
         type: '',

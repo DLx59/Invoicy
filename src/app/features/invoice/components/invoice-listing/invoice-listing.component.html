@@ -1,0 +1,35 @@
+<div class="invoice-listing-component">
+  <p-table [value]="invoices()" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template #header>
+      <tr>
+        <th>Numéro de facture</th>
+        <th>Date</th>
+        <th>Statut</th>
+        <th>Montant total</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-invoice>
+      <tr>
+        <td>{{ invoice.invoiceNumber }}</td>
+        <td>{{ invoice.issueDate | date : 'dd/MM/yyyy'}}</td>
+        <td>
+          <p-tag [severity]="getSeverityFromInvoiceStatus(invoice.status)" [value]="invoice.status" />
+        </td>
+        <td>{{ invoice.dueAmount | currency:'EUR':'symbol':'1.2-2' }}</td>
+        <td>
+          <p-button pRipple type="button" (click)="onEdit(invoice)"
+                    icon="pi pi-pencil" text rounded />
+          <p-button pRipple type="button" (click)="showInvoice(invoice)"
+                    icon="pi pi-eye" text rounded />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+@if (showPdfPreviewModal()) {
+  <app-pdf-preview-modal (isOpen)="refreshPdfDialogState($event)" (onDownload)="downloadPDF()"
+                         [invoiceNumber]="this.selectedInvoice()!.invoiceNumber" [pdfSrc]="pdfSrc()"
+                         [showDialog]="showPdfPreviewModal()"></app-pdf-preview-modal>
+}
