@@ -77,7 +77,22 @@ const MyPreset = definePreset(Aura, {
       900: '{red.900}',
       950: '{red.950}'
     }
-  }
+  },
+  components: {
+    menu: {
+      extend: {
+        background: 'transparent',
+        border: {
+          color: 'transparent'
+        }
+      }
+    },
+    card: {
+      extend: {
+        background: '{slate.800}'
+      }
+    }
+  },
 });
 
 export const appConfig: ApplicationConfig = {
