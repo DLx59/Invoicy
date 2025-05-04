@@ -1,0 +1,46 @@
+<p-menu [model]="items" class="flex justify-center" styleClass="w-full h-full md:w-60">
+  <ng-template #start>
+    <div class="card flex justify-center p-5">
+      <p-select [options]="profiles()" [ngModel]="selectedProfils()" optionLabel="name" class="w-full md:w-56">
+        <ng-template #selectedItem let-selectedOption>
+          @if (selectedOption) {
+            <div class="flex items-center gap-2" >
+              <img [src]="selectedOption.url" style="width: 18px" />
+              <div>{{ selectedOption.name }}</div>
+            </div>
+          }
+        </ng-template>
+        <ng-template let-profil #item>
+          <div class="flex items-center gap-2">
+            <img [src]="profil.url" style="width: 18px" />
+            <div>{{ profil.name }}</div>
+          </div>
+        </ng-template>
+        <ng-template #dropdownicon>
+          <i class="pi pi-arrows-v"></i>
+        </ng-template>
+        <ng-template #footer>
+          <div class="p-3">
+            <p-button label="Créer une organisation" fluid severity="secondary" text size="small" icon="pi pi-plus" />
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+  </ng-template>
+  <ng-template #submenuheader let-item>
+    <span class="text-primary font-bold">{{ item.label }}</span>
+  </ng-template>
+  <ng-template #item let-item>
+    <a pRipple class="flex items-center p-menu-item-link">
+      <span [class]="item.icon"></span>
+      <span class="ml-2">{{ item.label }}</span>
+      @if (item.badge) {
+        <p-badge class="ml-auto" [value]="item.badge"/>
+      }
+      @if (item.shortcut) {
+        <span
+          class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{ item.shortcut }}</span>
+      }
+    </a>
+  </ng-template>
+</p-menu>

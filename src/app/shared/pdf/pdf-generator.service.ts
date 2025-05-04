@@ -230,7 +230,7 @@ export class PdfGeneratorService {
           layout: this.tableLayout()
         },
         {text: ' ', margin: [0, 10]},
-        {text: invoice.terms || ''}
+        {text: invoice.terms?.replace(/\\n/g, '\n') ?? ''}
       ],
       footer: {
         margin: [40, 10],
@@ -248,7 +248,7 @@ export class PdfGeneratorService {
         fontSize: 10
       },
       styles: {
-        footer: { fontSize: 8, alignment: 'center' },
+        footer: {fontSize: 8, alignment: 'center'},
         italic: {
           italics: true
         },

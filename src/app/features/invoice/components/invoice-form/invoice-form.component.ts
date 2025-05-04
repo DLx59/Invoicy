@@ -1,5 +1,5 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
-import {Invoice, InvoiceStatus, Total} from '../../models/invoice.model';
+import {DEFAULT_INVOICE, Invoice, Total} from '../../models/invoice.model';
 import {FormArray, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {InvoiceNumberService} from '../../services/invoice-number/invoice-number.service';
 import {DatePipe} from '@angular/common';
@@ -15,6 +15,7 @@ import {Button} from 'primeng/button';
 import {PdfPreviewComponent} from '../../../../shared/components/pdf-preview/pdf-preview.component';
 import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
 import {InvoiceDataService} from "../../services/invoice-data/invoice-data.service";
+import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-invoice-form',
@@ -53,17 +54,10 @@ export class InvoiceFormComponent {
       label: 'Aperçu'
     }
   ];
-  public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
-  public totalAmount: Signal<number> = computed(() => this.totalNet() + this.totalVat());
-  public total: Signal<Total> = computed(() => ({
-    vat: this.totalVat(),
-    net: this.totalNet(),
-    amount: this.totalAmount()
-  }))
   public pdfSrc: WritableSignal<Blob | string> = signal('');
   public canDownloadPdf: WritableSignal<boolean> = signal(false);
-  private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
-  public formGroup: FormGroup = this.invoiceFormGroupService.getFormGroup();
+  public invoice: WritableSignal<Invoice> = signal<Invoice>(DEFAULT_INVOICE);
+  public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
   public totalVat: Signal<number> = computed(() => {
     const formArray = this.formGroup.get('items') as FormArray;
     if (this.invoice().isIntracommunity) {
@@ -84,13 +78,28 @@ export class InvoiceFormComponent {
       return acc + totalHt * taxRate;
     }, 0);
   });
+  public totalAmount: Signal<number> = computed(() => this.totalNet() + this.totalVat());
+  public total: Signal<Total> = computed(() => ({
+    vat: this.totalVat(),
+    net: this.totalNet(),
+    amount: this.totalAmount()
+  }))
+  private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
+  public formGroup: FormGroup = this.invoiceFormGroupService.getFormGroup();
   private readonly datePipe: DatePipe = inject(DatePipe);
   private readonly invoiceNumberService: InvoiceNumberService = inject(InvoiceNumberService);
   private readonly pdfGeneratorService: PdfGeneratorService = inject(PdfGeneratorService);
-  private readonly invoiceDataService: InvoiceDataService = inject(InvoiceDataService);
-  public invoice: WritableSignal<Invoice> = signal<Invoice>(this.invoiceDataService.getInvoices()[0]);
+  private route = inject(ActivatedRoute);
+  private invoiceDataService = inject(InvoiceDataService);
 
   constructor() {
+    const invoiceNumber = this.route.snapshot.paramMap.get('invoiceNumber');
+
+    if (invoiceNumber) {
+      this.invoiceDataService.loadInvoiceById(invoiceNumber).then((invoice: Invoice) => {
+        this.invoice.set(invoice);
+      });
+    }
     this.invoiceFormGroupService.initItems(this.invoice().items);
 
     if (!this.invoice().invoiceNumber) {
@@ -134,12 +143,14 @@ export class InvoiceFormComponent {
           issuerVAT: current.issuer.vat,
           issuerWebsite: current.issuer.website,
           issuerZipCode: current.issuer.address.zipCode,
+          items: current.items,
           note: current.note,
           terms: current.terms
         }, {emitEvent: false});
         this.autoResizeEnabled.set(true);
       });
     });
+
     effect(() => {
       const isPaid = this.formGroup.get('isPaid')?.value;
       const currentValue = this.formGroup.get('dueAmount')?.value;
@@ -153,7 +164,6 @@ export class InvoiceFormComponent {
         }))
       }
     });
-
   }
 
   public async vizualisePDF(): Promise<void> {
@@ -196,58 +206,7 @@ export class InvoiceFormComponent {
   }
 
   public resetForm(): void {
-    this.invoice.set({
-      invoiceNumber: '',
-      issueDate: '',
-      deadline: 0,
-      dueAmount: 0,
-      dueVat: 0,
-      dueDate: '',
-      isEndOfMonth: false,
-      isIntracommunity: false,
-      isPaid: false,
-      contractNumber: '',
-      client: {
-        id: '',
-        name: '',
-        address: {
-          city: '',
-          country: '',
-          street: '',
-          zipCode: ''
-        },
-        reference: ''
-      },
-      status: InvoiceStatus.DRAFT,
-      items: [{
-        id: crypto.randomUUID(),
-        type: '',
-        description: '',
-        period: '',
-        quantity: 0,
-        unitPrice: 0,
-        taxRate: 0.21,
-        totalPriceHt: 0
-      }],
-      issuer: {
-        id: '',
-        name: '',
-        address: {
-          city: '',
-          country: '',
-          street: '',
-          zipCode: ''
-        },
-        phone: '',
-        website: '',
-        email: '',
-        reference: '',
-        vat: ''
-      },
-      interventionBy: '',
-      note: '',
-      terms: ''
-    });
+    this.invoice.set(DEFAULT_INVOICE);
 
     this.invoiceFormGroupService.resetFormGroup();
     this.invoiceFormGroupService.initItems(this.invoice().items);

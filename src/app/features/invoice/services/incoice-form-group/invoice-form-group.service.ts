@@ -43,6 +43,7 @@ export class InvoiceFormGroupService {
   }
 
   public getItemsArray(): Signal<FormArray<FormGroup>> {
+    console.warn(this.formGroup().get('items'));
     return computed(() => this.formGroup().get('items') as FormArray<FormGroup>);
   }
 

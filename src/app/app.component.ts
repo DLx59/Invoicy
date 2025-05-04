@@ -1,29 +1,37 @@
 import {Component, inject} from '@angular/core';
-import {Button} from 'primeng/button';
 import {TableModule} from 'primeng/table';
-import {Router, RouterLink, RouterOutlet} from '@angular/router';
+import {Router, RouterOutlet} from '@angular/router';
 import {InvoiceDataService} from "./features/invoice/services/invoice-data/invoice-data.service";
+import {MenuComponent} from "./shared/components/menu/menu.component";
 
 @Component({
-    selector: 'app-root',
-    imports: [
-        Button,
-        TableModule,
-        RouterOutlet,
-        RouterLink
-    ],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
+  selector: 'app-root',
+  imports: [
+    TableModule,
+    RouterOutlet,
+    MenuComponent
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
-    private router: Router = inject(Router);
-    private readonly invoiceDataService: InvoiceDataService = inject(InvoiceDataService);
+  private router: Router = inject(Router);
+  private readonly invoiceDataService: InvoiceDataService = inject(InvoiceDataService);
 
-    constructor() {
-        this.invoiceDataService.loadInvoices().then(() => console.info('Invoices loaded'));
-    }
+  constructor() {
+    this.invoiceDataService.loadInvoices().then(() => console.info('Invoices loaded'));
+    this.invoiceDataService.loadDraftInvoices().then(() => console.info('Draft invoices loaded'));
+  }
 
-    public createInvoice() {
-        this.router.navigate(['invoice']);
-    }
+  public createInvoice() {
+    this.router.navigate(['invoice']);
+  }
+
+  public goToInvoiceHistory() {
+    this.router.navigate(['invoice-history']);
+  }
+
+  public goToInvoiceDraft() {
+    this.router.navigate(['invoice-draft']);
+  }
 }

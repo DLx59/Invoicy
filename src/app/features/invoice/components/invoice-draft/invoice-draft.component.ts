@@ -1,26 +1,24 @@
-import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
+import {Component, computed, effect, inject, Signal, signal, WritableSignal} from '@angular/core';
 import {Invoice} from "../../models/invoice.model";
-import {TableModule} from "primeng/table";
 import {InvoiceDataService} from "../../services/invoice-data/invoice-data.service";
 import {InvoiceTableComponent} from "../invoice-table/invoice-table.component";
 
 @Component({
-  selector: 'app-invoice-listing',
+  selector: 'app-invoice-draft',
   imports: [
-    TableModule,
     InvoiceTableComponent
   ],
-  templateUrl: './invoice-listing.component.html',
-  styleUrl: './invoice-listing.component.scss'
+  templateUrl: './invoice-draft.component.html',
+  styleUrl: './invoice-draft.component.scss'
 })
-export class InvoiceListingComponent {
+export class InvoiceDraftComponent {
   public invoices: WritableSignal<Array<Invoice>> = signal<Array<Invoice>>([]);
   private readonly invoiceDataService: InvoiceDataService = inject(InvoiceDataService);
   public isLoading: Signal<boolean> = computed(() => this.invoiceDataService.getIsLoading());
 
   constructor() {
     effect(() => {
-      this.invoices.set(this.invoiceDataService.getInvoices())
+      this.invoices.set(this.invoiceDataService.getDraftInvoices())
     });
   }
 }

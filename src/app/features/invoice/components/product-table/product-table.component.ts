@@ -29,7 +29,6 @@ export class ProductTableComponent {
   private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
   public items: Signal<FormArray<FormGroup>> = this.invoiceFormGroupService.getItemsArray();
 
-
   public trackByItemId(index: number, item: FormGroup): string {
     return item.get('id')?.value;
   }

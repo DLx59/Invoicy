@@ -73,3 +73,56 @@ export enum InvoiceStatus {
   PAID = 'Payé',
   CANCELLED = 'Annulé'
 }
+
+export const DEFAULT_INVOICE: Invoice = {
+  invoiceNumber: '',
+  issueDate: '',
+  deadline: 0,
+  dueAmount: 0,
+  dueVat: 0,
+  dueDate: '',
+  isEndOfMonth: false,
+  isIntracommunity: false,
+  isPaid: false,
+  contractNumber: '',
+  client: {
+    id: '',
+    name: '',
+    address: {
+      city: '',
+      country: '',
+      street: '',
+      zipCode: ''
+    },
+    reference: ''
+  },
+  status: InvoiceStatus.DRAFT,
+  items: [{
+    id: crypto.randomUUID(),
+    type: '',
+    description: '',
+    period: '',
+    quantity: 0,
+    unitPrice: 0,
+    taxRate: 0.21,
+    totalPriceHt: 0
+  }],
+  issuer: {
+    id: '',
+    name: '',
+    address: {
+      city: '',
+      country: '',
+      street: '',
+      zipCode: ''
+    },
+    phone: '',
+    website: '',
+    email: '',
+    reference: '',
+    vat: ''
+  },
+  interventionBy: '',
+  note: '',
+  terms: ''
+}
