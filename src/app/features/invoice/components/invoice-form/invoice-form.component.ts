@@ -14,7 +14,7 @@ import {ProductComponent} from '../product/product.component';
 import {Button} from 'primeng/button';
 import {PdfPreviewComponent} from '../../../../shared/components/pdf-preview/pdf-preview.component';
 import {PdfGeneratorService} from '../../../../shared/pdf/pdf-generator.service';
-import {InvoiceDataService} from "../../services/invoice-data/invoice-data.service";
+import {InvoiceDataService} from "../../../billing/services/invoice-data/invoice-data.service";
 import {ActivatedRoute} from "@angular/router";
 
 @Component({

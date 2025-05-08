@@ -1,7 +1,7 @@
 import {Component, computed, effect, inject, signal, Signal, WritableSignal} from '@angular/core';
 import {Invoice} from "../../models/invoice.model";
 import {TableModule} from "primeng/table";
-import {InvoiceDataService} from "../../services/invoice-data/invoice-data.service";
+import {InvoiceDataService} from "../../../billing/services/invoice-data/invoice-data.service";
 import {InvoiceTableComponent} from "../invoice-table/invoice-table.component";
 
 @Component({

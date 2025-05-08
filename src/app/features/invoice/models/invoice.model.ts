@@ -76,11 +76,11 @@ export enum InvoiceStatus {
 
 export const DEFAULT_INVOICE: Invoice = {
   invoiceNumber: '',
-  issueDate: '',
+  issueDate: new Date().toISOString(),
   deadline: 0,
   dueAmount: 0,
   dueVat: 0,
-  dueDate: '',
+  dueDate: new Date().toISOString(),
   isEndOfMonth: false,
   isIntracommunity: false,
   isPaid: false,

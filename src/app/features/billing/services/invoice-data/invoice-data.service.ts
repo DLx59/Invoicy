@@ -1,5 +1,5 @@
 import {Injectable, signal, WritableSignal} from '@angular/core';
-import {Invoice} from "../../models/invoice.model";
+import {Invoice} from "../../../invoice/models/invoice.model";
 import {
   selectDraftInvoicesQuery,
   selectInvoiceByNumberQuery,
@@ -79,6 +79,7 @@ export class InvoiceDataService {
   }
 
   public getInvoices(): Array<Invoice> {
+    console.warn(this.invoices())
     return this.invoices();
   }
 

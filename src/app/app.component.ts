@@ -1,7 +1,7 @@
 import {Component, inject} from '@angular/core';
 import {TableModule} from 'primeng/table';
 import {Router, RouterOutlet} from '@angular/router';
-import {InvoiceDataService} from "./features/invoice/services/invoice-data/invoice-data.service";
+import {InvoiceDataService} from "./features/billing/services/invoice-data/invoice-data.service";
 import {MenuComponent} from "./shared/components/menu/menu.component";
 
 @Component({

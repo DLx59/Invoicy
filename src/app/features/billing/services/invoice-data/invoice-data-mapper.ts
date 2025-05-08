@@ -1,4 +1,4 @@
-import {Address, Invoice, InvoiceItem, InvoiceStatus} from "../../models/invoice.model";
+import {Address, Invoice, InvoiceItem, InvoiceStatus} from "../../../invoice/models/invoice.model";
 
 export function mapInvoiceFromRow(row: any): Invoice {
   return {
@@ -21,6 +21,7 @@ export function mapInvoiceFromRow(row: any): Invoice {
     items: []
   };
 }
+
 export function mapClientFromRow(row: any): Invoice['client'] {
   return {
     id: row.clientId,
