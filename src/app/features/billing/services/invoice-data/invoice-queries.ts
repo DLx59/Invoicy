@@ -124,3 +124,14 @@ export const selectInvoiceItemsByIdQuery = `
   SELECT * FROM invoice_items WHERE invoiceId = ?;
 `;
 
+export const selectClientInfosQuery = `
+  SELECT c.id            as clientId,
+         c.name          as clientName,
+         c.vat           as clientVat,
+         c.reference     as clientReference,
+         c.street        as clientStreet,
+         c.zipCode       as clientZip,
+         c.city          as clientCity,
+         c.country       as clientCountry
+  FROM clients c
+`;

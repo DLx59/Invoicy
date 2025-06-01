@@ -35,7 +35,7 @@
       <span [class]="item.icon"></span>
       <span class="ml-2">{{ item.label }}</span>
       @if (item.badge) {
-        <p-badge class="ml-auto" [value]="item.badge"/>
+        <p-button rounded class="ml-auto" [icon]="item.badge"></p-button>
       }
       @if (item.shortcut) {
         <span

@@ -1,0 +1,14 @@
+:host ::ng-deep {
+  .p-button-icon-only.p-button-rounded {
+    display: flex;
+    height: 20px;
+    width: 20px;
+    align-items: center;
+    pointer-events: none;
+
+    .pi {
+      font-size: 10px;
+      font-weight: bold;
+    }
+  }
+}

@@ -1,31 +1,27 @@
 <div class="invoice-component p-5 flex flex-col flex-1 min-h-screen h-full">
   <div class="flex flex-col lg:rounded-t-2xl bg-primary-gradient bg-gray-900 gap-2 p-5">
-    <div class="flex flex-row justify-between">
-      <h1>Factures (
-        @if (invoices().length > 0) {
-          {{ invoices().length }}
-        } @else {
-          0
-        }
-        )</h1>
-      <span>test</span>
+    <div class="flex flex-row justify-between items-center">
+      <h1>Factures ({{ invoicesLength() }})</h1>
+      <p-button (click)="newInvoice()" rounded [icon]="'pi pi-plus'"/>
     </div>
   </div>
 
-  <div class="flex flex-col flex-1 lg:rounded-b-2xl gap-2 bg-slate-800 p-5">
+  <div class="flex flex-col flex-1 lg:rounded-b-2xl gap-2 items-center bg-slate-800 p-5">
     @if (invoices().length === 0) {
       <img src="assets/img/empty_illustration.png" alt="undraw invoice" class="w-96"/>
       <span class="font-bold">Créez une facture</span>
       <span>Créez et envoyez vos factures à vos clients en toute simplicité</span>
-      <p-button [icon]="'pi pi-plus'" label="Créer une facture" severity="primary" class="mt-3" rounded/>
+      <p-button (click)="newInvoice()" [icon]="'pi pi-plus'" label="Créer une facture" severity="primary" class="mt-3"
+                rounded/>
     } @else {
       @if (!isLoading()) {
         @for (invoice of invoices(); track invoice.invoiceNumber) {
           <div class="flex flex-col border border-gray-700 rounded gap-3 p-5 w-full">
             <div class="flex flex-row h-full justify-between">
               <div class="flex flex-col justify-between">
+                <span>{{ invoice.invoiceNumber }}</span>
                 <span>{{ invoice.client.name }}</span>
-                <div class="flex flex-row gap-3">
+                <div class="flex flex-row gap-3 mt-3">
                   <span><i class="pi pi-file me-2"></i>{{ invoice.dueAmount | currency:'EUR':'symbol':'1.2-2' }}
                     HT</span>
                   @if (!invoice.isIntracommunity) {
@@ -37,9 +33,10 @@
                 </div>
               </div>
               <div class="flex flex-col items-end">
-                <p-menu #menu [model]="items" [popup]="true" />
+                <p-menu #menu [model]="items" [popup]="true"/>
                 <p-button (click)="selectedInvoice.set(invoice); menu.toggle($event)" outlined icon="pi pi-ellipsis-v"/>
-                <p-tag styleClass="w-32 mt-2" [severity]="getSeverityFromInvoiceStatus(invoice.status)" [value]="invoice.status"/>
+                <p-tag styleClass="w-32 mt-2" [severity]="getSeverityFromInvoiceStatus(invoice.status)"
+                       [value]="invoice.status"/>
               </div>
             </div>
           </div>

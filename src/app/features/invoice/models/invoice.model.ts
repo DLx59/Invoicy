@@ -26,13 +26,20 @@ export interface ClientInfo {
 
 export interface InvoiceItem {
   id: string;
-  type: string;
+  type: ItemType;
   description: string;
   period: string;
   quantity: number;
   unitPrice: number;
   taxRate: number;
   totalPriceHt?: number;
+}
+
+export enum ItemType {
+  DEPOSIT = 'Acompte',
+  LABOR = 'Prestation',
+  PRODUCT = 'Produit',
+  SERVICE = 'Service'
 }
 
 export interface Invoice {
@@ -99,7 +106,7 @@ export const DEFAULT_INVOICE: Invoice = {
   status: InvoiceStatus.DRAFT,
   items: [{
     id: crypto.randomUUID(),
-    type: '',
+    type: ItemType.LABOR,
     description: '',
     period: '',
     quantity: 0,

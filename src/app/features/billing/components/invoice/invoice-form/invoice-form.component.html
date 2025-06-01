@@ -1,0 +1,30 @@
+<div class="invoice-form-component p-5 flex flex-col flex-1 min-h-screen h-full">
+  <div class="flex flex-col lg:rounded-t-2xl bg-primary-gradient bg-gray-900 gap-2 p-5">
+    <div class="flex flex-row justify-between items-center">
+      <h1>Nouvelles facture</h1>
+    </div>
+  </div>
+  <form [formGroup]="formGroup" class="flex flex-col flex-1 lg:rounded-b-2xl gap-2 bg-slate-800 p-5">
+    <h3>Destinataire</h3>
+    <p-autocomplete formControlName="clientInfo" [dropdown]="true" [suggestions]="clientInfos()"
+                    (completeMethod)="search($event)" optionLabel="name"></p-autocomplete>
+
+
+    @if (selectedClientInfo()) {
+      <h3 class="mt-5">Information</h3>
+      <div class="flex items-center gap-1">
+        <p-checkbox formControlName="isIntracommunity" [binary]="true" inputId="isIntracommunity"/>
+        <label for="isIntracommunity" class="ml-2">TVA non applicable</label>
+      </div>
+
+      <h3 class="mt-5">Articles</h3>
+      <div class="product-table">
+        <p-floatlabel class="mt-5">
+          <p-inputnumber formControlName="products" inputId="over_label" mode="currency" currency="EUR" locale="fr-FR" />
+          <label for="over_label">Quantité</label>
+        </p-floatlabel>
+      </div>
+    }
+  </form>
+</div>
+

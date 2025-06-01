@@ -1,7 +1,6 @@
 import {Component, computed, inject, signal} from '@angular/core';
 import {Menu} from "primeng/menu";
 import {Ripple} from "primeng/ripple";
-import {Badge} from "primeng/badge";
 import {MenuItem} from "primeng/api";
 import {Button} from "primeng/button";
 import {Select} from "primeng/select";
@@ -13,7 +12,6 @@ import {Router} from "@angular/router";
   imports: [
     Menu,
     Ripple,
-    Badge,
     Button,
     Select,
     FormsModule
@@ -53,7 +51,6 @@ export class MenuComponent {
         {
           label: 'Devis',
           icon: 'pi pi-file',
-          badge: '+',
           command: () => {
             this.router.navigate(['quotations']);
           }
@@ -61,7 +58,6 @@ export class MenuComponent {
         {
           label: 'Factures',
           icon: 'pi pi-dollar',
-          badge: '+',
           command: () => {
             this.router.navigate(['invoices']);
           }
@@ -74,12 +70,10 @@ export class MenuComponent {
         {
           label: 'Factures d\'achat',
           icon: 'pi pi-shop',
-          badge: '+'
         },
         {
           label: 'Notes de frais',
           icon: 'pi pi-clipboard',
-          badge: '+'
         }
       ]
     },
@@ -89,12 +83,10 @@ export class MenuComponent {
         {
           label: 'Clients',
           icon: 'pi pi-address-book',
-          badge: '+'
         },
         {
           label: 'Sociétés',
           icon: 'pi pi-building',
-          badge: '+'
         }
       ]
     }

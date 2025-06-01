@@ -8,6 +8,7 @@ import {MenuItem} from "primeng/api";
 import {PdfGeneratorService} from "../../../../shared/pdf/pdf-generator.service";
 import {PdfPreviewModalComponent} from "../../../../shared/components/pdf-preview-modal/pdf-preview-modal.component";
 import {Tag} from "primeng/tag";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-invoice',
@@ -31,6 +32,7 @@ export class InvoiceComponent {
   public showPdfPreviewModal = signal(false);
   public selectedInvoice: WritableSignal<Invoice | null> = signal(null);
   public isLoading: Signal<boolean> = computed(() => this.invoiceDataService.getIsLoading());
+  public invoicesLength: Signal<number> = computed(() => this.invoices().length > 0 ? this.invoices().length : 0);
   public items: MenuItem[] = [{
     items: [
       {
@@ -54,6 +56,7 @@ export class InvoiceComponent {
       }
     ]
   }]
+  private readonly router = inject(Router);
 
   constructor() {
     effect(() => {
@@ -95,5 +98,9 @@ export class InvoiceComponent {
     if (!invoice) return;
 
     this.pdfGeneratorService.download(invoice);
+  }
+
+  public newInvoice() {
+    this.router.navigate(['/invoices/new']);
   }
 }
