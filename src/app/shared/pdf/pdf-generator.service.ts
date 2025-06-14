@@ -31,9 +31,9 @@ export class PdfGeneratorService {
       item.type,
       item.description,
       item.period,
-      item.quantity,
-      this.safe(item.unitPrice),
-      this.safe(item.totalPriceHt || 0)
+      { text: item.quantity, alignment: 'right' },
+      { text: this.safe(item.unitPrice), alignment: 'right' },
+      { text: this.safe(item.totalPriceHt || 0), alignment: 'right' }
     ]);
 
     const subtotal = invoice.items.reduce((sum, item) => sum + (item.totalPriceHt || 0), 0);
@@ -150,9 +150,9 @@ export class PdfGeneratorService {
                 {text: 'Type', fillColor: '#f5f5f5', style: 'strong'},
                 {text: 'Descriptif', fillColor: '#f5f5f5', style: 'strong'},
                 {text: 'Période', fillColor: '#f5f5f5', style: 'strong'},
-                {text: 'Quantité', fillColor: '#f5f5f5', style: 'strong'},
-                {text: 'Prix Unit. HT', fillColor: '#f5f5f5', style: 'strong'},
-                {text: 'Montant HT', fillColor: '#f5f5f5', style: 'strong'}
+                {text: 'Quantité', fillColor: '#f5f5f5', style: 'strong', alignment: 'right' },
+                {text: 'Prix Unit. HT', fillColor: '#f5f5f5', style: 'strong', alignment: 'right' },
+                {text: 'Montant HT', fillColor: '#f5f5f5', style: 'strong', alignment: 'right' }
               ],
               ...items
             ]
