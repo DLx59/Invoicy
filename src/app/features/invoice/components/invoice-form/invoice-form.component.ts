@@ -280,7 +280,7 @@ export class InvoiceFormComponent {
     const initialIsEndOfMonth = false;
 
     this.invoice = signal<Invoice>({
-      invoiceNumber: '',
+      invoiceNumber: '2025-06-001',
       issueDate: this.datePipe.transform(new Date(), 'dd/MM/yyyy') ?? '',
       deadline: initialDeadline,
       dueAmount: 0,
@@ -323,12 +323,12 @@ export class InvoiceFormComponent {
         },
         phone: '+33 647 10 97 00',
         reference: '',
-        website: 'site-web.com',
-        email: 'email@wtz.com',
+        website: '',
+        email: 'contact@wtz-srl.com',
         vat: 'BE1022858268'
       },
       interventionBy: 'Denis Wojtowicz',
-      note: 'Développement Front End Angular\nAstreinte Novembre',
+      note: '',
       terms: 'Nos factures sont réglables sans escompte\nTout retard de paiement entraînerait la facturation de 40 € pour poursuite judiciaire\nainsi que des intérêts de retard : Taux de base x 3'
     });
   }
