@@ -53,6 +53,9 @@ export class InvoiceFormComponent {
       label: 'Aperçu'
     }
   ];
+  public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
+  public pdfSrc: WritableSignal<Blob | string> = signal('');
+  public canDownloadPdf: WritableSignal<boolean> = signal(false);
   public totalVat: Signal<number> = computed(() => {
     const formArray = this.formGroup.get('items') as FormArray;
     if (this.invoice().isIntracommunity) {
@@ -62,8 +65,7 @@ export class InvoiceFormComponent {
         taxRateControl?.disable();
       });
       return 0;
-    }
-    else {
+    } else {
       formArray.controls.forEach(control => {
         control.get('taxRate')?.enable({emitEvent: false});
       });
@@ -75,16 +77,12 @@ export class InvoiceFormComponent {
       return acc + totalHt * taxRate;
     }, 0);
   });
-
-  public totalNet: Signal<number> = computed(() => this.invoice().items.reduce((acc, item) => acc + (item.totalPriceHt ?? 0), 0));
   public totalAmount: Signal<number> = computed(() => this.totalNet() + this.totalVat());
   public total: Signal<Total> = computed(() => ({
     vat: this.totalVat(),
     net: this.totalNet(),
     amount: this.totalAmount()
   }))
-  public pdfSrc: WritableSignal<Blob | string> = signal('');
-  public canDownloadPdf: WritableSignal<boolean> = signal(false);
   private readonly invoiceFormGroupService = inject(InvoiceFormGroupService);
   public formGroup: FormGroup = this.invoiceFormGroupService.getFormGroup();
   private readonly datePipe: DatePipe = inject(DatePipe);
@@ -156,11 +154,17 @@ export class InvoiceFormComponent {
         }))
       }
     });
-
   }
 
   public async vizualisePDF(): Promise<void> {
     try {
+      if (this.invoice().isIntracommunity) {
+        this.invoice.update((invoice) => ({
+          ...invoice,
+          terms: invoice.terms?.concat('\n\nTVA non applicable – article 138 de la directive 2006/112/CE')
+        }))
+      }
+
       const blob: Blob = await this.pdfGeneratorService.getBlob(this.invoice());
       this.pdfSrc.set(URL.createObjectURL(blob));
     } catch (error) {
@@ -169,6 +173,12 @@ export class InvoiceFormComponent {
   }
 
   public downloadPDF() {
+    if (this.invoice().isIntracommunity) {
+      this.invoice.update((invoice) => ({
+        ...invoice,
+        terms: invoice.terms?.concat('\n\nTVA non applicable – article 138 de la directive 2006/112/CE')
+      }))
+    }
     this.pdfGeneratorService.download(this.invoice());
   }
 
@@ -280,14 +290,14 @@ export class InvoiceFormComponent {
     const initialIsEndOfMonth = false;
 
     this.invoice = signal<Invoice>({
-      invoiceNumber: '2025-06-001',
+      invoiceNumber: '2025-07-001',
       issueDate: this.datePipe.transform(new Date(), 'dd/MM/yyyy') ?? '',
       deadline: initialDeadline,
       dueAmount: 0,
       dueVat: 0,
       dueDate: this.calculateDueDate(initialIssueDate, initialDeadline, initialIsEndOfMonth),
       isEndOfMonth: false,
-      contractNumber: 'CST.2024.08.003',
+      contractNumber: 'CST.2025.05.001',
       isIntracommunity: false,
       isPaid: false,
       client: {
@@ -305,11 +315,11 @@ export class InvoiceFormComponent {
       items: [{
         id: crypto.randomUUID(),
         type: 'Prestation',
-        description: '21 jours',
-        period: 'Mars 2025',
+        description: '20 jours',
+        period: 'juillet 2025',
         quantity: 20,
-        unitPrice: 500,
-        totalPriceHt: 10000,
+        unitPrice: 440,
+        totalPriceHt: 8800,
         taxRate: 0.21
       }],
       issuer: {
@@ -318,17 +328,17 @@ export class InvoiceFormComponent {
         address: {
           city: 'Bruxelles',
           country: 'Belgique',
-          street: ' 206 Chaussée de Roodebeek',
+          street: '206 Chaussée de Roodebeek',
           zipCode: '1200'
         },
-        phone: '+33 647 10 97 00',
+        phone: '+33 647 10 97 37',
         reference: '',
         website: '',
         email: 'contact@wtz-srl.com',
         vat: 'BE1022858268'
       },
       interventionBy: 'Denis Wojtowicz',
-      note: '',
+      note: 'Développement Front End Angular',
       terms: 'Nos factures sont réglables sans escompte\nTout retard de paiement entraînerait la facturation de 40 € pour poursuite judiciaire\nainsi que des intérêts de retard : Taux de base x 3'
     });
   }
